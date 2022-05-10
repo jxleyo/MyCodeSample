@@ -29,8 +29,8 @@
 BOOL EnbalePrivileges();
 BOOL EnumerateDevices();
 BOOL FindDevice();
-BOOL RemoveDevice();
-BOOL update();
+BOOL RemoveDriver();
+BOOL UpdateDriver();
 BOOL UnInstall();
 BOOL Install();
 BOOL UnInstallDriver();
@@ -40,7 +40,7 @@ wchar_t* mystrcat(const wchar_t* str1, const wchar_t* str2, const wchar_t* str3)
 BOOL FuzzyCompareHwIds(PZPWSTR Array, const wchar_t* MatchHwId);
 BOOL FindCurrentDriver(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo, _In_ PSP_DRVINFO_DATA DriverInfoData);
 BOOL GetDeviceOEMDriverFiles(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo);
-void Set_InstallationSources_Directory(TCHAR* szPath);
+void Set_InstallationSources_Directory(wchar_t* szPath);
 
 void DelMultiSz(_In_opt_ __drv_freesMem(object) PZPWSTR Array);
 __drv_allocatesMem(object) LPTSTR* GetDevMultiSz(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo, _In_ DWORD Prop);
