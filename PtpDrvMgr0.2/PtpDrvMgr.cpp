@@ -9,11 +9,52 @@ wchar_t OEM_MfgName[] = L"jxleyo.HRP";
 wchar_t I2C_COMPATIBLE_hwID[] = L"ACPI\\PNP0C50";
 wchar_t TouchPad_COMPATIBLE_hwID[] = L"HID_DEVICE_UP:000D_U:0005";
 wchar_t TouchPad_hwID[MAX_DEVICE_ID_LEN];
-wchar_t I2C_hwID[MAX_DEVICE_ID_LEN];
+wchar_t TouchPad_I2C_hwID[MAX_DEVICE_ID_LEN];
 wchar_t inf_name[] = L"MouseLikeTouchPad_I2C.inf";
 wchar_t OEMinf_FullName[MAX_PATH];
 wchar_t OEMinf_name[MAX_PATH];
 BOOLEAN bOEMDriverExist;//存在驱动标志
+
+int
+__cdecl
+_tmain(_In_ int argc, _In_reads_(argc) PWSTR* argv)
+{
+    ////printf("start main\n");
+
+    BOOLEAN retVal = FALSE;
+    int retFunc = EXIT_USAGE;
+    EnbalePrivileges();
+
+    //SetConsoleCtrlHandler(HandlerRoutine, TRUE);
+
+    ////wprintf(TEXT("argc= %d\n"), argc);
+    ////wprintf(TEXT("argv[0]= [%s]\n"), argv[0]);
+
+    if (argc > 1) {
+        if (wcscmp(argv[1], L"in") == 0) {
+            retVal = Install();
+            if (retVal) {
+                retFunc = EXIT_OK;
+            }
+        }
+        else if (wcscmp(argv[1], L"un") == 0) {
+            retVal = UnInstall();
+            if (retVal) {
+                retFunc = EXIT_OK;
+            }
+        }
+    }
+
+    if (retFunc == EXIT_USAGE) {
+        wprintf(TEXT("%s [Command]\n"), argv[0]);
+        printf("[in]: Auto Find Device and InstallDriver\n");
+        printf("[un]: Auto Find Device and UnInstallDriver\n");
+    }
+
+
+    printf("EXIT_OK\n");
+    return retFunc;
+}
 
 
 
@@ -171,8 +212,13 @@ BOOL FindDevice()
     HDEVINFO DeviceInfoSet;
     SP_DEVINFO_DATA DeviceInfoData;
     DWORD devIndex;
-    BOOLEAN bMATCH = FALSE;
-    BOOLEAN bFOUND = FALSE;
+    BOOLEAN bMatch = FALSE;
+    BOOLEAN bTouchPad_FOUND = FALSE;
+    BOOLEAN bTouchPad_I2C_FOUND = FALSE;
+
+    TCHAR devInstance_ID[MAX_DEVICE_ID_LEN];//instance ID
+    LPTSTR* devHwIDs;
+    LPTSTR* devCompatibleIDs;
 
     SetLastError(NO_ERROR);
 
@@ -194,50 +240,47 @@ BOOL FindDevice()
     DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
     for (devIndex = 0; SetupDiEnumDeviceInfo(DeviceInfoSet, devIndex, &DeviceInfoData); devIndex++)
     {
-        TCHAR devInstance_ID[MAX_DEVICE_ID_LEN];//instance ID
-        LPTSTR* hwIds = NULL;
-        LPTSTR* compatIds = NULL;
-        //
+        devHwIDs = NULL;
+        devCompatibleIDs = NULL;
+
         // determine instance ID
-        //
         if (CM_Get_Device_ID(DeviceInfoData.DevInst, devInstance_ID, MAX_DEVICE_ID_LEN, 0) != CR_SUCCESS) {
             devInstance_ID[0] = TEXT('\0');
         }
-        ////wprintf(TEXT("devInstance_ID: [%s]\n"), devInstance_ID); 
+        ////wprintf(TEXT("TouchPad_hwID devInstance_ID: [%s]\n"), devInstance_ID); 
 
-        hwIds = GetDevMultiSz(DeviceInfoSet, &DeviceInfoData, SPDRP_HARDWAREID);
-        compatIds = GetDevMultiSz(DeviceInfoSet, &DeviceInfoData, SPDRP_COMPATIBLEIDS);
+        devHwIDs = GetDevMultiSz(DeviceInfoSet, &DeviceInfoData, SPDRP_HARDWAREID);
+        devCompatibleIDs = GetDevMultiSz(DeviceInfoSet, &DeviceInfoData, SPDRP_COMPATIBLEIDS);
 
-        if (FuzzyCompareHwIds(hwIds, TouchPad_COMPATIBLE_hwID) || FuzzyCompareHwIds(compatIds, TouchPad_COMPATIBLE_hwID))
+        if (FuzzyCompareHwIds(devHwIDs, TouchPad_COMPATIBLE_hwID) || FuzzyCompareHwIds(devCompatibleIDs, TouchPad_COMPATIBLE_hwID))
         {
             //printf("找到TouchPad触控板设备！\n");
             //wprintf(TEXT("TouchPad Device devInstance_ID= [%s]\n"), devInstance_ID);
-            //wprintf(TEXT("TouchPad Device hwIds= [%s]\n"), hwIds[0]);
-            wcscpy_s(TouchPad_hwID, hwIds[0]);
+            //wprintf(TEXT("TouchPad Device devHwIDs= [%s]\n"), devHwIDs[0]);
+            wcscpy_s(TouchPad_hwID, devHwIDs[0]);
             wprintf(TEXT("TouchPad_hwID= [%s]\n"), TouchPad_hwID);
 
-            bMATCH = TRUE;
-            DelMultiSz(hwIds);
-            DelMultiSz(compatIds);
+            DelMultiSz(devHwIDs);
+            DelMultiSz(devCompatibleIDs);
+
+            bTouchPad_FOUND = TRUE;
             break;
         }
 
-        DelMultiSz(hwIds);
-        DelMultiSz(compatIds);
-    }
-
-    if (GetLastError() == ERROR_NO_MORE_ITEMS) {
-        printf("SetupDiEnumDeviceInfo err！\n");
+        DelMultiSz(devHwIDs);
+        DelMultiSz(devCompatibleIDs);
     }
 
 
-    if (bMATCH)
-    {
+    if (!bTouchPad_FOUND) {
+        printf("未找到TouchPad触控板设备！\n");
+    }
+    else{
         //生成I2C_hwID
         wchar_t* pstr;
         pstr = mystrcat(TouchPad_hwID, L"HID\\", L"ACPI\\");
         pstr = mystrcat(pstr, L"&Col02", L"\0");
-        wcscpy_s(I2C_hwID, pstr);
+        wcscpy_s(TouchPad_I2C_hwID, pstr);
         //wprintf(TEXT("TouchPad I2C_hwID= [%s]\n"), I2C_hwID);
 
         //验证I2C设备
@@ -246,71 +289,72 @@ BOOL FindDevice()
 
         for (devIndex = 0; SetupDiEnumDeviceInfo(DeviceInfoSet, devIndex, &DeviceInfoData); devIndex++)
         {
-            TCHAR devInstID[MAX_DEVICE_ID_LEN];//instance ID
-            LPTSTR* devHwIds = NULL;
-            LPTSTR* devCompatIds = NULL;
+            devHwIDs = NULL;
+            devCompatibleIDs = NULL;
             //
             // determine instance ID
             //
-            if (CM_Get_Device_ID(DeviceInfoData.DevInst, devInstID, MAX_DEVICE_ID_LEN, 0) != CR_SUCCESS) {
+            if (CM_Get_Device_ID(DeviceInfoData.DevInst, devInstance_ID, MAX_DEVICE_ID_LEN, 0) != CR_SUCCESS) {
                 printf("CM_Get_Device_ID err！\n");
-                devInstID[0] = TEXT('\0');
+                devInstance_ID[0] = TEXT('\0');
             }
-            ////wprintf(TEXT("devInstID: [%s]\n"), devInstID);
+            ////wprintf(TEXT("TouchPad I2C devInstance_ID: [%s]\n"), devInstance_ID);
 
-            devHwIds = GetDevMultiSz(DeviceInfoSet, &DeviceInfoData, SPDRP_HARDWAREID);
-            devCompatIds = GetDevMultiSz(DeviceInfoSet, &DeviceInfoData, SPDRP_COMPATIBLEIDS);
+            devHwIDs = GetDevMultiSz(DeviceInfoSet, &DeviceInfoData, SPDRP_HARDWAREID);
+            devCompatibleIDs = GetDevMultiSz(DeviceInfoSet, &DeviceInfoData, SPDRP_COMPATIBLEIDS);
 
-            if (FuzzyCompareHwIds(devHwIds, I2C_hwID) && FuzzyCompareHwIds(devCompatIds, I2C_COMPATIBLE_hwID))
+            if (FuzzyCompareHwIds(devHwIDs, TouchPad_I2C_hwID) && FuzzyCompareHwIds(devCompatibleIDs, I2C_COMPATIBLE_hwID))
             {
                 //printf("找到TouchPad触控板的I2C设备！\n");
-                //wprintf(TEXT("TouchPad I2C Device devInstID= [%s]\n"), devInstID);
-                wprintf(TEXT("TouchPad I2C Device devHwIds= [%s]\n"), devHwIds[0]);
+                //wprintf(TEXT("TouchPad I2C Device devInstance_ID= [%s]\n"), devInstance_ID);
+                //wprintf(TEXT("TouchPad I2C Device devHwIDs= [%s]\n"), devHwIDs[0]);
+                wprintf(TEXT("TouchPad_I2C_hwID= [%s]\n"), TouchPad_I2C_hwID);
 
-                BOOLEAN ret = GetDeviceOEMDriverFiles(DeviceInfoSet, &DeviceInfoData);
-                if (!ret || !bOEMDriverExist) {//不存在第三方OEM驱动) 
-                     printf("OEM Driver Not Exist！\n");
-                }
+                DelMultiSz(devHwIDs);
+                DelMultiSz(devCompatibleIDs);
 
-                ////
-                //wchar_t szPath[MAX_PATH];
-                //DWORD dwRet;
-                //dwRet = GetCurrentDirectory(MAX_PATH, szPath);
-                //if (dwRet == 0)    //返回零表示得到文件的当前路径失败
-                //{
-                //    printf("GetCurrentDirectory failed (%d)", GetLastError());
-                //}
-                //wprintf(TEXT("GetCurrentDirectory= [%s]\n"), szPath);
-
-                ////设置安装路径
-                //Set_InstallationSources_Directory(szPath);
-
-                //DiShowUpdateDevice(NULL, DeviceInfoSet, &DeviceInfoData, 0, FALSE);
-                ////DiShowUpdateDriver(NULL, OEMinf_FullName, 0, FALSE);
-
-
-                bFOUND = TRUE;
-                DelMultiSz(devHwIds);
-                DelMultiSz(devCompatIds);
+                bTouchPad_I2C_FOUND = TRUE;
                 break;
             }
 
-            DelMultiSz(devHwIds);
-            DelMultiSz(devCompatIds);
+            DelMultiSz(devHwIDs);
+            DelMultiSz(devCompatibleIDs);
         }
 
+    }
 
-        if (!bFOUND) {
-            printf("未找到TouchPad触控板的I2C设备！\n");
-        }
+    if (!bTouchPad_I2C_FOUND) {
+        printf("未找到TouchPad触控板的I2C设备！\n");
     }
     else {
-        printf("未找到TouchPad触控板设备！\n");
+        BOOLEAN ret = GetDeviceOEMdriverInfo(DeviceInfoSet, &DeviceInfoData);
+        if (!ret || !bOEMDriverExist) {//不存在第三方OEM驱动) 
+            printf("OEM Driver Not Exist！\n");
+        }
+
+        ////
+        //wchar_t szPath[MAX_PATH];
+        //DWORD dwRet;
+        //dwRet = GetCurrentDirectory(MAX_PATH, szPath);
+        //if (dwRet == 0)    //返回零表示得到文件的当前路径失败
+        //{
+        //    printf("GetCurrentDirectory failed (%d)", GetLastError());
+        //}
+        //wprintf(TEXT("GetCurrentDirectory= [%s]\n"), szPath);
+
+        ////设置安装路径
+        //Set_InstallationSources_Directory(szPath);
+
+        //DiShowUpdateDevice(NULL, DeviceInfoSet, &DeviceInfoData, 0, FALSE);
+        ////DiShowUpdateDriver(NULL, OEMinf_FullName, 0, FALSE);
+
+        //
+        bMatch = TRUE;
     }
 
     //printf("FindDevice end\n");
     SetupDiDestroyDeviceInfoList(DeviceInfoSet);
-    return bFOUND;
+    return bMatch;
 }
 
 
@@ -407,7 +451,7 @@ BOOL FindCurrentDriver(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo, _In_ P
 }
 
 
-BOOL GetDeviceOEMDriverFiles(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo)
+BOOL GetDeviceOEMdriverInfo(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo)
 {
     SP_DRVINFO_DATA driverInfoData;
     SP_DRVINFO_DETAIL_DATA driverInfoDetail;
@@ -421,7 +465,6 @@ BOOL GetDeviceOEMDriverFiles(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo)
 
     //FindCurrentDriver
     SP_DEVINSTALL_PARAMS deviceInstallParams;
-    BOOL match = FALSE;
 
     ZeroMemory(&deviceInstallParams, sizeof(deviceInstallParams));
     deviceInstallParams.cbSize = sizeof(SP_DEVINSTALL_PARAMS);
@@ -501,7 +544,7 @@ BOOL GetDeviceOEMDriverFiles(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo)
         wcscpy_s(OEMinf_name, pstr);
         wprintf(TEXT("OEMinf_name= [%s]\n"), OEMinf_name);
 
-        //printf("GetDeviceOEMDriverFiles ok\n");
+        //printf("GetDeviceOEMdriverInfo ok\n");
         bSuccess = TRUE;
     }
     else {
@@ -512,11 +555,6 @@ BOOL GetDeviceOEMDriverFiles(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo)
 final:
 
     SetupDiDestroyDriverInfoList(Devs, DevInfo, SPDIT_CLASSDRIVER);
-
-    if (!bSuccess) {
-        //printf("OEM Driver Not Exist!\n");
-    }
-
     return bSuccess;
 
 }
@@ -629,47 +667,6 @@ BOOL WINAPI HandlerRoutine(DWORD dwCtrlType)
     ::MessageBox(NULL, L"退出！", L"提示", MB_OKCANCEL);
 
     return TRUE;
-}
-
-int
-__cdecl
-_tmain(_In_ int argc, _In_reads_(argc) PWSTR* argv)
-{
-    ////printf("start main\n");
-
-    BOOLEAN retVal = FALSE;
-    int retFunc = EXIT_USAGE;
-    EnbalePrivileges();
-
-    //SetConsoleCtrlHandler(HandlerRoutine, TRUE);
-
-    ////wprintf(TEXT("argc= %d\n"), argc);
-    ////wprintf(TEXT("argv[0]= [%s]\n"), argv[0]);
-
-    if (argc > 1) {
-        if (wcscmp(argv[1], L"in") == 0) {
-            retVal = Install();
-            if (retVal) {
-                retFunc = EXIT_OK;
-            }
-        }
-        else if (wcscmp(argv[1], L"un") == 0) {
-            retVal = UnInstall();
-            if (retVal) {
-                retFunc = EXIT_OK;
-            }
-        }
-    }
-
-    if (retFunc == EXIT_USAGE) {
-        wprintf(TEXT("%s [Command]\n"), argv[0]);
-        printf("[in]: Auto Find Device and InstallDriver\n");
-        printf("[un]: Auto Find Device and UnInstallDriver\n");
-    }
-
-
-    //printf("EXIT_OK\n");
-    return retFunc;
 }
 
 
@@ -878,7 +875,7 @@ BOOL RemoveDevice()
         wchar_t* pstr;
         pstr = mystrcat(TouchPad_hwID, L"HID\\", L"ACPI\\");
         pstr = mystrcat(pstr, L"&Col02", L"\0");
-        wcscpy_s(I2C_hwID, pstr);
+        wcscpy_s(TouchPad_I2C_hwID, pstr);
         //wprintf(TEXT("RemoveDevice TouchPad I2C_hwID= [%s]\n"), I2C_hwID);
 
         //验证I2C设备
@@ -901,13 +898,13 @@ BOOL RemoveDevice()
             devHwIds = GetDevMultiSz(DeviceInfoSet, &DeviceInfoData, SPDRP_HARDWAREID);
             devCompatIds = GetDevMultiSz(DeviceInfoSet, &DeviceInfoData, SPDRP_COMPATIBLEIDS);
 
-            if (FuzzyCompareHwIds(devHwIds, I2C_hwID) && FuzzyCompareHwIds(devCompatIds, I2C_COMPATIBLE_hwID))
+            if (FuzzyCompareHwIds(devHwIds, TouchPad_I2C_hwID) && FuzzyCompareHwIds(devCompatIds, I2C_COMPATIBLE_hwID))
             {
                 //printf("RemoveDevice 找到TouchPad触控板的I2C设备！\n");
                 //wprintf(TEXT("RemoveDevice TouchPad I2C Device devInstID= [%s]\n"), devInstID);
                 //wprintf(TEXT("RemoveDevice TouchPad I2C Device devHwIds= [%s]\n"), devHwIds[0]);
 
-                BOOLEAN ret = GetDeviceOEMDriverFiles(DeviceInfoSet, &DeviceInfoData);
+                BOOLEAN ret = GetDeviceOEMdriverInfo(DeviceInfoSet, &DeviceInfoData);
 
                 bFOUND = TRUE;
                 DelMultiSz(devHwIds);
@@ -1025,7 +1022,7 @@ BOOL UpdateDriver()
     TCHAR InfPath[MAX_PATH];
     BOOLEAN bSuccess = FALSE;
 
-    //printf("start update\n");
+    //printf("start UpdateDriver\n");
 
     inf = inf_name;
     if (!inf[0]) {
@@ -1034,7 +1031,7 @@ BOOL UpdateDriver()
     }
     //wprintf(TEXT("update inf= [%s]\n"), inf);
 
-    hwid = I2C_hwID;
+    hwid = TouchPad_I2C_hwID;
     if (!hwid[0]) {
         printf("hwid err！\n");
         return FALSE;
@@ -1059,7 +1056,7 @@ BOOL UpdateDriver()
 
     inf = InfPath;
 
-
+    printf("start UpdateDriver\n");
     if (!UpdateDriverForPlugAndPlayDevices(NULL, hwid, inf, flags, &reboot)) {
         printf("UpdateDriverForPlugAndPlayDevices failed！\n");
         return FALSE;
