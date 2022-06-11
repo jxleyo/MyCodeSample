@@ -13,7 +13,8 @@ static wchar_t I2C_COMPATIBLE_hwID[] = L"ACPI\\PNP0C50";
 static wchar_t TouchPad_COMPATIBLE_hwID[] = L"HID_DEVICE_UP:000D_U:0005";
 static wchar_t TouchPad_hwID[MAX_DEVICE_ID_LEN];
 static wchar_t TouchPad_I2C_hwID[MAX_DEVICE_ID_LEN];
-static wchar_t inf_name[] = L"MouseLikeTouchPad_I2C.inf";
+static wchar_t inf_FullPathName[MAX_PATH];
+static wchar_t inf_name[] = L"Driver\\MouseLikeTouchPad_I2C.inf";
 static wchar_t OEMinf_FullName[MAX_PATH];
 static wchar_t OEMinf_name[MAX_PATH];
 static BOOLEAN bOEMDriverExist;//存在驱动标志
@@ -87,7 +88,45 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     strcat_s(szPath, "\\system32");
     strcpy_s(cmdFilePath, szPath);
 
+    //赋值源驱动inf路径
+    wcscpy_s(inf_FullPathName, exeFilePath);
+    wcscpy_s(inf_FullPathName, L"\\");
+    wcscpy_s(inf_FullPathName, inf_name);
+    
+    //检测文件
+    if (!MainFileExist(L"InstDrv.bat")) {
+        MessageBox(NULL, L"InstDrv.bat文件丢失，请重新下载驱动包", L"PtpDrvMgr", MB_OK);
+        return EXIT_FAIL;
+    }
+    if (!MainFileExist(L"Uninst.bat")) {
+        MessageBox(NULL, L"Uninst.bat文件丢失，请重新下载驱动包", L"PtpDrvMgr", MB_OK);
+        return EXIT_FAIL;
+    }
+    if (!MainFileExist(L"icon.ico")) {
+        MessageBox(NULL, L"icon.ico文件丢失，请重新下载驱动包", L"PtpDrvMgr", MB_OK);
+        return EXIT_FAIL;
+    }
 
+    if (!DrvFileExist(L"MouseLikeTouchPad_I2C.inf")) {
+        MessageBox(NULL, L"MouseLikeTouchPad_I2C.inf文件丢失，请重新下载驱动包", L"PtpDrvMgr", MB_OK);
+        return EXIT_FAIL;
+    }
+    if (!DrvFileExist(L"MouseLikeTouchPad_I2C.cat")) {
+        MessageBox(NULL, L"MouseLikeTouchPad_I2C.inf文件丢失，请重新下载驱动包", L"PtpDrvMgr", MB_OK);
+        return EXIT_FAIL;
+    }
+    if (!DrvFileExist(L"MouseLikeTouchPad_I2C.sys")) {
+        MessageBox(NULL, L"MouseLikeTouchPad_I2C.inf文件丢失，请重新下载驱动包", L"PtpDrvMgr", MB_OK);
+        return EXIT_FAIL;
+    }
+
+    if (!DirExist(L"LogFile")) {
+        TCHAR szPath[MAX_PATH];
+        wcscpy_s(szPath, exeFilePath);
+        wcscpy_s(szPath, L"\\LogFile");
+        CreateDirectory(szPath, NULL);
+    }
+    
 
     //无界面模式的命令
     if (wcscmp(lpCmdLine, L"Install") == 0) {
@@ -498,7 +537,7 @@ BOOL FindDevice()
             //wprintf(TEXT("TouchPad Device devHwIDs= [%s]\n"), devHwIDs[0]);
             wcscpy_s(TouchPad_hwID, devHwIDs[0]);
             wprintf(TEXT("TouchPad_hwID= [%s]\n"), TouchPad_hwID);
-            NewFile(L"TouchPad_FOUND.txt");
+            NewLogFile(L"TouchPad_FOUND.txt");
            
             DelMultiSz(devHwIDs);
             DelMultiSz(devCompatibleIDs);
@@ -595,7 +634,7 @@ BOOL FindDevice()
 
     //printf("FindDevice end\n");
     SetupDiDestroyDeviceInfoList(DeviceInfoSet);
-    NewFile(L"Return_FindDevice.txt");
+    NewLogFile(L"Return_FindDevice.txt");
     return TRUE;
 }
 
@@ -803,11 +842,90 @@ BOOL GetDeviceOEMdriverInfo(_In_ HDEVINFO Devs, _In_ PSP_DEVINFO_DATA DevInfo)
 }
 
 
-BOOL FileExist(LPCWSTR szFileName)
+BOOL DirExist(LPCWSTR szFilePathName)
+{
+    if (GetFileAttributes(szFilePathName) == FILE_ATTRIBUTE_DIRECTORY) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+
+BOOL FileExist(LPCWSTR szFilePathName)
+{
+    HANDLE hFile = CreateFile(szFilePathName,
+        GENERIC_READ,
+        0,
+        NULL,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL);
+
+    if (hFile == INVALID_HANDLE_VALUE || GetLastError() == ERROR_FILE_NOT_FOUND) {
+        CloseHandle(hFile);//关闭句柄
+        return FALSE;
+    }
+
+    CloseHandle(hFile);
+    return TRUE;
+}
+
+
+BOOL MainFileExist(LPCWSTR szFileName)
 {
     WCHAR szFilePath[MAX_PATH];
     wcscpy_s(szFilePath, exeFilePath);
     wcscat_s(szFilePath, L"\\");
+    wcscat_s(szFilePath, szFileName);
+
+    HANDLE hFile = CreateFile(szFilePath,
+        GENERIC_READ,
+        0,
+        NULL,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL);
+
+    if (hFile == INVALID_HANDLE_VALUE || GetLastError() == ERROR_FILE_NOT_FOUND) {
+        CloseHandle(hFile);//关闭句柄
+        return FALSE;
+    }
+
+    CloseHandle(hFile);
+    return TRUE;
+}
+
+BOOL DrvFileExist(LPCWSTR szFileName)
+{
+    WCHAR szFilePath[MAX_PATH];
+    wcscpy_s(szFilePath, exeFilePath);
+    wcscat_s(szFilePath, L"\\Driver\\");
+    wcscat_s(szFilePath, szFileName);
+
+    HANDLE hFile = CreateFile(szFilePath,
+        GENERIC_READ,
+        0,
+        NULL,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL);
+
+    if (hFile == INVALID_HANDLE_VALUE || GetLastError() == ERROR_FILE_NOT_FOUND) {
+        CloseHandle(hFile);//关闭句柄
+        return FALSE;
+    }
+
+    CloseHandle(hFile);
+    return TRUE;
+}
+
+
+BOOL LogFileExist(LPCWSTR szFileName)
+{
+    WCHAR szFilePath[MAX_PATH];
+    wcscpy_s(szFilePath, exeFilePath);
+    wcscat_s(szFilePath, L"\\LogFile\\");
     wcscat_s(szFilePath, szFileName);
 
     HANDLE hFile = CreateFile(szFilePath,
@@ -828,22 +946,22 @@ BOOL FileExist(LPCWSTR szFileName)
 }
 
 
-void DelFile(LPCWSTR szFileName)
+void DelLogFile(LPCWSTR szFileName)
 {
     WCHAR szFilePath[MAX_PATH];
     wcscpy_s(szFilePath, exeFilePath);
-    wcscat_s(szFilePath, L"\\");
+    wcscat_s(szFilePath, L"\\LogFile\\");
     wcscat_s(szFilePath, szFileName);
 
     DeleteFile(szFilePath);
 }
 
 
-BOOL NewFile(LPCWSTR szFileName)
+BOOL NewLogFile(LPCWSTR szFileName)
 {
     WCHAR szFilePath[MAX_PATH];
     wcscpy_s(szFilePath, exeFilePath);
-    wcscat_s(szFilePath, L"\\");
+    wcscat_s(szFilePath, L"\\LogFile\\");
     wcscat_s(szFilePath, szFileName);
 
     HANDLE hFile = CreateFile(szFilePath,
@@ -869,7 +987,7 @@ BOOL GetTouchPad_I2C_hwID()
 {
     WCHAR szFilePath[MAX_PATH];
     wcscpy_s(szFilePath, exeFilePath);
-    wcscat_s(szFilePath, L"\\");
+    wcscat_s(szFilePath, L"\\LogFile\\");
     wcscat_s(szFilePath, L"TouchPad_I2C_FOUND.txt");
 
     HANDLE hFile = CreateFile(szFilePath,
@@ -921,7 +1039,7 @@ BOOL GetOEMDriverName()
 {
     WCHAR szFilePath[MAX_PATH];
     wcscpy_s(szFilePath, exeFilePath);
-    wcscat_s(szFilePath, L"\\");
+    wcscat_s(szFilePath, L"\\LogFile\\");
     wcscat_s(szFilePath, L"OEMDriverName.txt");
 
 
@@ -984,7 +1102,7 @@ BOOL SaveTouchPad_I2C_hwID()
 {
     WCHAR szFilePath[MAX_PATH];
     wcscpy_s(szFilePath, exeFilePath);
-    wcscat_s(szFilePath, L"\\");
+    wcscat_s(szFilePath, L"\\LogFile\\");
     wcscat_s(szFilePath, L"TouchPad_I2C_FOUND.txt");
 
     HANDLE hFile = CreateFile(szFilePath,
@@ -1021,7 +1139,7 @@ BOOL SaveOEMDriverName()
 {
     WCHAR szFilePath[MAX_PATH];
     wcscpy_s(szFilePath, exeFilePath);
-    wcscat_s(szFilePath, L"\\");
+    wcscat_s(szFilePath, L"\\LogFile\\");
     wcscat_s(szFilePath, L"OEMDriverName.txt");
 
     HANDLE hFile = CreateFile(szFilePath,
@@ -1064,8 +1182,8 @@ void Install() {
     //批处理模式安装微软ACPI\MSFT0001标准硬件ID驱动
 
     //清理历史记录文件
-    DelFile(L"Return_InstDrv.txt");
-    DelFile(L"InstDrvSuccess.txt");
+    DelLogFile(L"Return_InstDrv.txt");
+    DelLogFile(L"InstDrvSuccess.txt");
 
     retry = 0;
     nTry = 5;
@@ -1085,30 +1203,30 @@ waitInstBAT:
             goto NextInstStep;//跳过批处理安装方式
         }
 
-        if (FileExist(L"TouchPad_I2C_FOUND.txt")) {
+        if (LogFileExist(L"TouchPad_I2C_FOUND.txt")) {
             nTry=20;
         }
 
-        if (!FileExist(L"Return_InstDrv.txt")) {//InstDrv.bat未执行结束
+        if (!LogFileExist(L"Return_InstDrv.txt")) {//InstDrv.bat未执行结束
             goto waitInstBAT;
         }
 
-        if (FileExist(L"InstDrvSuccess.txt")) {//InstDrv.bat安装驱动成功
-            DelFile(L"Return_InstDrv.txt");
-            DelFile(L"InstDrvSuccess.txt");
+        if (LogFileExist(L"InstDrvSuccess.txt")) {//InstDrv.bat安装驱动成功
+            DelLogFile(L"Return_InstDrv.txt");
+            DelLogFile(L"InstDrvSuccess.txt");
             goto InstSuccess;//直接跳到结尾
         }
 
-        DelFile(L"Return_InstDrv.txt");
-        DelFile(L"InstDrvSuccess.txt");
+        DelLogFile(L"Return_InstDrv.txt");
+        DelLogFile(L"InstDrvSuccess.txt");
     }
 
 
 NextInstStep:
     //清理历史记录文件
-    while (FileExist(L"Return_FindDevice.txt"))DelFile(L"Return_FindDevice.txt");
-    while (FileExist(L"Return_UninstallDriver.txt"))DelFile(L"Return_UninstallDriver.txt");
-    while (FileExist(L"TouchPad_FOUND.txt"))DelFile(L"TouchPad_FOUND.txt");
+    while (LogFileExist(L"Return_FindDevice.txt"))DelLogFile(L"Return_FindDevice.txt");
+    while (LogFileExist(L"Return_UninstallDriver.txt"))DelLogFile(L"Return_UninstallDriver.txt");
+    while (LogFileExist(L"TouchPad_FOUND.txt"))DelLogFile(L"TouchPad_FOUND.txt");
 
     retry = 0;
     nTry = 3;
@@ -1128,25 +1246,25 @@ FindDev:
         return;
     }
 
-    if (!FileExist(L"TouchPad_I2C_FOUND.txt")) {
+    if (!LogFileExist(L"TouchPad_I2C_FOUND.txt")) {
         nTry= 5;
     }
 
-    if (!FileExist(L"Return_FindDevice.txt")) {//FindDevice未执行结束
+    if (!LogFileExist(L"Return_FindDevice.txt")) {//FindDevice未执行结束
         goto FindDev;
     }
 
     //FindDevice执行完毕
-    DelFile(L"Return_FindDevice.txt");
+    DelLogFile(L"Return_FindDevice.txt");
 
-    if (!FileExist(L"TouchPad_FOUND.txt")) {
+    if (!LogFileExist(L"TouchPad_FOUND.txt")) {
         MessageBox(NULL, L"未找到匹配的触控板设备，无法安装驱动。", L"PtpDrvMgr", MB_OK);
         ExitCode = EXIT_FAIL;
         return;
     }
-    DelFile(L"TouchPad_FOUND.txt");
+    DelLogFile(L"TouchPad_FOUND.txt");
 
-    if (!FileExist(L"TouchPad_I2C_FOUND.txt")) {
+    if (!LogFileExist(L"TouchPad_I2C_FOUND.txt")) {
         MessageBox(NULL, L"未找到匹配的I2C总线触控板设备，无法安装驱动。", L"PtpDrvMgr", MB_OK);
         ExitCode = EXIT_FAIL;
         return;
@@ -1169,17 +1287,17 @@ InstDrv:
             return;
         }
 
-        if (!FileExist(L"Return_InstallDriver.txt")) {//InstallDriver未执行结束
+        if (!LogFileExist(L"Return_InstallDriver.txt")) {//InstallDriver未执行结束
             goto InstDrv;
         }     
     }
 
-    if (!FileExist(L"Return_InstallDriver.txt")) {//InstallDriver未执行结束
+    if (!LogFileExist(L"Return_InstallDriver.txt")) {//InstallDriver未执行结束
         MessageBox(NULL, L"找到匹配的I2C总线触控板设备，安装驱动失败，请稍后再试。", L"PtpDrvMgr", MB_OK);
         ExitCode = EXIT_FAIL;
         return;
     }
-    DelFile(L"Return_InstallDriver.txt");
+    DelLogFile(L"Return_InstallDriver.txt");
 
 
     while (Rescan())break;//重新扫描设备
@@ -1203,14 +1321,14 @@ CheckDev:
         return;
     }
 
-    if (!FileExist(L"Return_FindDevice.txt")) {//FindDevice未执行结束
+    if (!LogFileExist(L"Return_FindDevice.txt")) {//FindDevice未执行结束
         goto FindDev;
     }
 
     //FindDevice执行完毕
-    DelFile(L"Return_FindDevice.txt");
+    DelLogFile(L"Return_FindDevice.txt");
 
-    if (!FileExist(L"OEMDriverName.txt")) {
+    if (!LogFileExist(L"OEMDriverName.txt")) {
         MessageBox(NULL, L"二次验证，安装驱动失败，请稍后再试。", L"PtpDrvMgr", MB_OK);
         ExitCode = EXIT_FAIL;
         return;
@@ -1219,9 +1337,9 @@ CheckDev:
 
 InstSuccess:
     //清理历史记录文件
-    while (FileExist(L"Return_FindDevice.txt"))DelFile(L"Return_FindDevice.txt");
-    while (FileExist(L"Return_UninstallDriver.txt"))DelFile(L"Return_UninstallDriver.txt");
-    while (FileExist(L"TouchPad_FOUND.txt"))DelFile(L"TouchPad_FOUND.txt");
+    while (LogFileExist(L"Return_FindDevice.txt"))DelLogFile(L"Return_FindDevice.txt");
+    while (LogFileExist(L"Return_UninstallDriver.txt"))DelLogFile(L"Return_UninstallDriver.txt");
+    while (LogFileExist(L"TouchPad_FOUND.txt"))DelLogFile(L"TouchPad_FOUND.txt");
 
     //存在驱动
     MessageBox(NULL, L"安装驱动成功！", L"PtpDrvMgr", MB_OK | MB_DEFBUTTON1);
@@ -1236,9 +1354,9 @@ void Uninstall() {
     while (Rescan())break;//重新扫描设备
 
     //清理历史记录文件
-    while(FileExist(L"Return_FindDevice.txt"))DelFile(L"Return_FindDevice.txt");
-    while (FileExist(L"Return_UninstallDriver.txt"))DelFile(L"Return_UninstallDriver.txt");
-    while (FileExist(L"TouchPad_FOUND.txt"))DelFile(L"TouchPad_FOUND.txt");
+    while(LogFileExist(L"Return_FindDevice.txt"))DelLogFile(L"Return_FindDevice.txt");
+    while (LogFileExist(L"Return_UninstallDriver.txt"))DelLogFile(L"Return_UninstallDriver.txt");
+    while (LogFileExist(L"TouchPad_FOUND.txt"))DelLogFile(L"TouchPad_FOUND.txt");
 
 
     retry = 0;
@@ -1259,25 +1377,25 @@ FindDev:
         return;
     }
 
-    if (!FileExist(L"TouchPad_I2C_FOUND.txt")) {
+    if (!LogFileExist(L"TouchPad_I2C_FOUND.txt")) {
         nTry = 5;
     }
 
-    if (!FileExist(L"Return_FindDevice.txt")) {//FindDevice未执行结束
+    if (!LogFileExist(L"Return_FindDevice.txt")) {//FindDevice未执行结束
         goto FindDev;
     }
 
     //FindDevice执行完毕
-    DelFile(L"Return_FindDevice.txt");
+    DelLogFile(L"Return_FindDevice.txt");
 
-    if (!FileExist(L"TouchPad_FOUND.txt")) {
+    if (!LogFileExist(L"TouchPad_FOUND.txt")) {
         MessageBox(NULL, L"未找到匹配的触控板设备，无需卸载驱动，可直接卸载程序。", L"PtpDrvMgr", MB_OK);
         ExitCode = EXIT_OK;//这里不用安装，直接返回成功
         return;
     }
-    DelFile(L"TouchPad_FOUND.txt");
+    DelLogFile(L"TouchPad_FOUND.txt");
 
-    if (!FileExist(L"TouchPad_I2C_FOUND.txt")) {
+    if (!LogFileExist(L"TouchPad_I2C_FOUND.txt")) {
         MessageBox(NULL, L"未找到匹配的I2C总线触控板设备，无需卸载驱动，可直接卸载程序。", L"PtpDrvMgr", MB_OK);
         ExitCode = EXIT_OK;//这里不用安装，直接返回成功
         return;
@@ -1318,18 +1436,18 @@ waitUninstBAT:
                     goto NextUninstStep;//跳过批处理卸载方式
                 }
 
-                if (!FileExist(L"Return_UninstDrv.txt")) {//UninstDrv.bat未执行结束
+                if (!LogFileExist(L"Return_UninstDrv.txt")) {//UninstDrv.bat未执行结束
                     goto waitUninstBAT;
                 }
 
-                if (FileExist(L"UninstDrvSuccess.txt")) {//UninstDrv.bat卸载驱动成功
-                    DelFile(L"Return_UninstDrv.txt");
-                    DelFile(L"UninstDrvSuccess.txt");
+                if (LogFileExist(L"UninstDrvSuccess.txt")) {//UninstDrv.bat卸载驱动成功
+                    DelLogFile(L"Return_UninstDrv.txt");
+                    DelLogFile(L"UninstDrvSuccess.txt");
                     goto UninstDrvSuccess;//直接跳到结尾
                 }
 
-                DelFile(L"Return_UninstDrv.txt");
-                DelFile(L"UninstDrvSuccess.txt");
+                DelLogFile(L"Return_UninstDrv.txt");
+                DelLogFile(L"UninstDrvSuccess.txt");
 
 
 NextUninstStep:
@@ -1338,17 +1456,17 @@ NextUninstStep:
             return;
         }
 
-        if (!FileExist(L"Return_UninstallDriver.txt")) {//InstallDriver未执行结束
+        if (!LogFileExist(L"Return_UninstallDriver.txt")) {//InstallDriver未执行结束
             goto UninstDrv;
         }        
     }
 
-    if (!FileExist(L"Return_UninstallDriver.txt")) {//InstallDriver未执行结束
+    if (!LogFileExist(L"Return_UninstallDriver.txt")) {//InstallDriver未执行结束
         MessageBox(NULL, L"找到匹配的I2C总线触控板设备，卸载驱动失败，请稍后再试。", L"PtpDrvMgr", MB_OK);
         ExitCode = EXIT_FAIL;
         return;
     }
-    DelFile(L"Return_UninstallDriver.txt");
+    DelLogFile(L"Return_UninstallDriver.txt");
 
 
     while (Rescan())break;//重新扫描设备
@@ -1372,14 +1490,14 @@ CheckDev:
         return;
     }
 
-    if (!FileExist(L"Return_FindDevice.txt")) {//FindDevice未执行结束
+    if (!LogFileExist(L"Return_FindDevice.txt")) {//FindDevice未执行结束
         goto FindDev;
     }
 
     //FindDevice执行完毕
-    DelFile(L"Return_FindDevice.txt");
+    DelLogFile(L"Return_FindDevice.txt");
 
-    if (FileExist(L"OEMDriver.txt")) {
+    if (LogFileExist(L"OEMDriver.txt")) {
         MessageBox(NULL, L"二次验证，卸载驱动失败，请稍后再试。", L"PtpDrvMgr", MB_OK);
         ExitCode = EXIT_FAIL;
         return;
@@ -1388,9 +1506,9 @@ CheckDev:
 
 UninstDrvSuccess:
     //清理历史记录文件
-    while (FileExist(L"Return_FindDevice.txt"))DelFile(L"Return_FindDevice.txt");
-    while (FileExist(L"Return_UninstallDriver.txt"))DelFile(L"Return_UninstallDriver.txt");
-    while (FileExist(L"TouchPad_FOUND.txt"))DelFile(L"TouchPad_FOUND.txt");
+    while (LogFileExist(L"Return_FindDevice.txt"))DelLogFile(L"Return_FindDevice.txt");
+    while (LogFileExist(L"Return_UninstallDriver.txt"))DelLogFile(L"Return_UninstallDriver.txt");
+    while (LogFileExist(L"TouchPad_FOUND.txt"))DelLogFile(L"TouchPad_FOUND.txt");
 
     //不存在驱动
     MessageBox(NULL, L"卸载驱动成功！", L"PtpDrvMgr", MB_OK | MB_DEFBUTTON1);
@@ -1413,7 +1531,7 @@ BOOL InstallDriver() {
 
 
 END:
-    NewFile(L"Return_InstallDriver.txt");
+    NewLogFile(L"Return_InstallDriver.txt");
     return ret;
 }
 
@@ -1431,7 +1549,7 @@ BOOL UninstallDriver() {
         return FALSE;
     }
 
-    NewFile(L"Return_UninstallDriver.txt");
+    NewLogFile(L"Return_UninstallDriver.txt");
     return ret;
 
 }
@@ -1797,13 +1915,12 @@ BOOL UpdateDriver()
     LPCTSTR hwid = NULL;
     LPCTSTR inf = NULL;
     DWORD flags = INSTALLFLAG_FORCE;
-    DWORD res;
-    TCHAR InfPath[MAX_PATH];
+
     BOOLEAN bSuccess = FALSE;
 
     //printf("start UpdateDriver\n");
 
-    inf = inf_name;
+    inf = inf_FullPathName;
     if (!inf[0]) {
         printf("inf err！\n");
         return FALSE;
@@ -1817,24 +1934,6 @@ BOOL UpdateDriver()
     }
     //wprintf(TEXT("update hwid= [%s]\n"), hwid);
 
-    // Inf must be a full pathname
-    res = GetFullPathName(inf, MAX_PATH, InfPath, NULL);
-    if ((res >= MAX_PATH) || (res == 0)) {
-
-        // inf pathname too long
-        printf("inf pathname too long！\n");
-        return FALSE;
-    }
-    if (GetFileAttributes(InfPath) == (DWORD)(-1)) {
-
-        // inf doesn't exist
-        //printf("inf doesn't exist！\n");
-        return FALSE;
-    }
-    //wprintf(TEXT("update InfPath= [%s]\n"), InfPath);
-
-    inf = InfPath;
-    
     printf("start UpdateDriver\n");
     if (!UpdateDriverForPlugAndPlayDevices(NULL, hwid, inf, flags, &reboot)) {
         printf("UpdateDriverForPlugAndPlayDevices failed！\n");

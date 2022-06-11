@@ -36,9 +36,13 @@ BOOL InstallDriver();
 void Install();
 void Uninstall();
 
-BOOL FileExist(LPCWSTR szFileName);
-BOOL NewFile(LPCWSTR szFileName);
-void DelFile(LPCWSTR szFileName);
+BOOL DirExist(LPCWSTR szFilePathName);
+BOOL FileExist(LPCWSTR szFilePathName);
+BOOL MainFileExist(LPCWSTR szFileName);
+BOOL DrvFileExist(LPCWSTR szFileName);
+BOOL LogFileExist(LPCWSTR szFileName);
+BOOL NewLogFile(LPCWSTR szFileName);
+void DelLogFile(LPCWSTR szFileName);
 BOOL GetTouchPad_I2C_hwID();
 BOOL GetOEMDriverName();
 BOOL SaveOEMDriverName();
