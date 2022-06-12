@@ -1,68 +1,68 @@
 echo off
-echo µ¯³ö´°¿Ú¡°ÔÊĞí´ËÓ¦ÓÃ¶ÔÄãµÄÉè±¸½øĞĞ¸ü¸Ä¡° ÇëÑ¡Ôñ¡°ÊÇ¡±ÒÔ»ñÈ¡¹ÜÀíÔ±È¨ÏŞÀ´ÔËĞĞ±¾°²×°½Å±¾
+echo å¼¹å‡ºçª—å£â€œå…è®¸æ­¤åº”ç”¨å¯¹ä½ çš„è®¾å¤‡è¿›è¡Œæ›´æ”¹â€œ è¯·é€‰æ‹©â€œæ˜¯â€ä»¥è·å–ç®¡ç†å‘˜æƒé™æ¥è¿è¡Œæœ¬å®‰è£…è„šæœ¬
 echo Pop up window "allow this app to make changes to your device" please select "yes" to obtain administrator rights to run this installation script
 echo.
 
-::»ñÈ¡¹ÜÀíÔ±È¨ÏŞ
+::è·å–ç®¡ç†å‘˜æƒé™
 %1 mshta vbscript:CreateObject("Shell.Application").ShellExecute("cmd.exe","/c %~s0 ::","","runas",1)(window.close)&&exit
-::±£³Öµ±Ç°Ä¿Â¼ÏÂÔËĞĞ
+::ä¿æŒå½“å‰ç›®å½•ä¸‹è¿è¡Œ
 cd /d "%~dp0"
 
 echo off
-echo ¿ªÊ¼ÔËĞĞ°²×°½Å±¾£¬°²×°Çı¶¯Ç°ÇëÈ·±£ÆäËû³ÌĞòÒÑ¹Ø±Õ»òÎÄµµÒÑ±£´æ
+echo å¼€å§‹è¿è¡Œå®‰è£…è„šæœ¬ï¼Œå®‰è£…é©±åŠ¨å‰è¯·ç¡®ä¿å…¶ä»–ç¨‹åºå·²å…³é—­æˆ–æ–‡æ¡£å·²ä¿å­˜
 echo Start running the installation script. Before installing the driver, make sure that other programs have been closed or the document has been saved.
 echo.
 
-echo ¿ªÊ¼¼ì²é°²×°ÎÄ¼ş
+echo å¼€å§‹æ£€æŸ¥å®‰è£…æ–‡ä»¶
 echo Start checking installation files
 echo.
 
 if exist MouseLikeTouchPad_I2C.inf (
-    echo MouseLikeTouchPad_I2C.infÎÄ¼şÕı³£
+    echo MouseLikeTouchPad_I2C.infæ–‡ä»¶æ­£å¸¸
 ) else (
-    echo MouseLikeTouchPad_I2C.infÎÄ¼ş¶ªÊ§£¬Çë¼ì²é»òÕßÖØĞÂÏÂÔØÇı¶¯°²×°°ü
-    echo MouseLikeTouchPad_I2C.inf File Lost£¬Please check or download the driver installation package again.
+    echo MouseLikeTouchPad_I2C.infæ–‡ä»¶ä¸¢å¤±ï¼Œè¯·æ£€æŸ¥æˆ–è€…é‡æ–°ä¸‹è½½é©±åŠ¨å®‰è£…åŒ…
+    echo MouseLikeTouchPad_I2C.inf File Lostï¼ŒPlease check or download the driver installation package again.
     pause
     exit
 )
 
 if exist MouseLikeTouchPad_I2C.cat (
-    echo MouseLikeTouchPad_I2C.catÎÄ¼şÕı³£
+    echo MouseLikeTouchPad_I2C.catæ–‡ä»¶æ­£å¸¸
 ) else (
-    echo MouseLikeTouchPad_I2C.catÎÄ¼ş¶ªÊ§£¬Çë¼ì²é»òÕßÖØĞÂÏÂÔØÇı¶¯°²×°°ü
-    echo MouseLikeTouchPad_I2C.cat File Lost£¬Please check or download the driver installation package again.
+    echo MouseLikeTouchPad_I2C.catæ–‡ä»¶ä¸¢å¤±ï¼Œè¯·æ£€æŸ¥æˆ–è€…é‡æ–°ä¸‹è½½é©±åŠ¨å®‰è£…åŒ…
+    echo MouseLikeTouchPad_I2C.cat File Lostï¼ŒPlease check or download the driver installation package again.
     pause
     exit
 )
 
 if exist MouseLikeTouchPad_I2C.sys (
-    echo MouseLikeTouchPad_I2C.sysÎÄ¼şÕı³£
+    echo MouseLikeTouchPad_I2C.sysæ–‡ä»¶æ­£å¸¸
 ) else (
-    echo MouseLikeTouchPad_I2C.sysÎÄ¼ş¶ªÊ§£¬Çë¼ì²é»òÕßÖØĞÂÏÂÔØÇı¶¯°²×°°ü
-    echo MouseLikeTouchPad_I2C.sys File Lost£¬Please check or download the driver installation package again.
+    echo MouseLikeTouchPad_I2C.sysæ–‡ä»¶ä¸¢å¤±ï¼Œè¯·æ£€æŸ¥æˆ–è€…é‡æ–°ä¸‹è½½é©±åŠ¨å®‰è£…åŒ…
+    echo MouseLikeTouchPad_I2C.sys File Lostï¼ŒPlease check or download the driver installation package again.
     pause
     exit
 )
 
 
-::¿ªÆôÑÓ³Ù±äÁ¿À©Õ¹
+::å¼€å¯å»¶è¿Ÿå˜é‡æ‰©å±•
 setlocal enabledelayedexpansion
 echo.
 
- ::É¾³ıÀúÊ·²ĞÁôÎÄ¼ş
+ ::åˆ é™¤å†å²æ®‹ç•™æ–‡ä»¶
 del/f /q hid_dev.txt
 del/f /q i2c_dev.txt
 del/f /q dev*.tmp
 del/f /q drv*.tmp
 echo.
 
-::É¾³ıÀúÊ·¼ÇÂ¼ÎÄ¼ş
+::åˆ é™¤å†å²è®°å½•æ–‡ä»¶
 if exist Return.txt (
     del/f /q Return.txt
 )
 echo.
 
-::Ğ´Èë¿ªÊ¼ÔËĞĞbatµÄĞÅºÅ
+::å†™å…¥å¼€å§‹è¿è¡Œbatçš„ä¿¡å·
 echo StartBAT>Return.txt
 echo.
 
@@ -71,8 +71,8 @@ ver>winver.txt
 echo.
 
 find "10.0." winver.txt || (
-	 echo µ±Ç°ÏµÍ³²»ÊÇwindows10/11£¬ÎŞ·¨°²×°£¡
- 	echo Current OS is not Windows10/11£¬Can't Install the Driver£¡
+	 echo å½“å‰ç³»ç»Ÿä¸æ˜¯windows10/11ï¼Œæ— æ³•å®‰è£…ï¼
+ 	echo Current OS is not Windows10/11ï¼ŒCan't Install the Driverï¼
 	 echo.
  	del/f /q winver.txt
  	echo.
@@ -81,14 +81,14 @@ find "10.0." winver.txt || (
  	exit
 ) 
 
- ::windows10v2004×îÔç°æ±¾ºÅ10.0.19041.264 //10.0.a.b¸ñÊ½£¬Ö±½ÓÅĞ¶Ïa>=19041¼´¿É£¬×¢Òâdelims»á°Ñ»Ø³µ»»ĞĞ·û×Ô¶¯Ëã×÷·Ö¸ô·ûËùÒÔ¶àĞĞÇé¿öÏÂtokensµÄÊıÖµÉèÖÃĞèÒª¼ÆËã»»ĞĞÇé¿öÏÂµÄÁĞºÅ
+ ::Win10 Build 19041.208(v2004)æ­£å¼ç‰ˆ //10.0.a.bæ ¼å¼ï¼Œç›´æ¥åˆ¤æ–­a>=19041å³å¯ï¼Œæ³¨æ„delimsä¼šæŠŠå›è½¦æ¢è¡Œç¬¦è‡ªåŠ¨ç®—ä½œåˆ†éš”ç¬¦æ‰€ä»¥å¤šè¡Œæƒ…å†µä¸‹tokensçš„æ•°å€¼è®¾ç½®éœ€è¦è®¡ç®—æ¢è¡Œæƒ…å†µä¸‹çš„åˆ—å·
  for /f "delims=[.] tokens=4" %%i in (winver.txt) do (
    set "winver=%%i"
  )
  
-::ÊıÖµ×Ö·û´®µÄÖµ´óĞ¡±È½Ï£¬×¢ÒâĞèÒªÒıºÅ£¬²¢ÇÒÊµ¼ÊÉÏÊı×Ö×Ö·û´®Î»Êı²»Í¬Ê±´óĞ¡±È½Ï²»ÊÇ×¼È·µÄ£¬±ÈÈç2041ºÍ19041Ïà±È½Ï»áÊÇ´íÎó½á¹û
+::æ•°å€¼å­—ç¬¦ä¸²çš„å€¼å¤§å°æ¯”è¾ƒï¼Œæ³¨æ„éœ€è¦å¼•å·ï¼Œå¹¶ä¸”å®é™…ä¸Šæ•°å­—å­—ç¬¦ä¸²ä½æ•°ä¸åŒæ—¶å¤§å°æ¯”è¾ƒä¸æ˜¯å‡†ç¡®çš„ï¼Œæ¯”å¦‚2041å’Œ19041ç›¸æ¯”è¾ƒä¼šæ˜¯é”™è¯¯ç»“æœ
 if ("%winver%" LSS "19041") (
-     echo µ±Ç°windowsÏµÍ³°æ±¾Ì«µÍ£¬ÇëÉı¼¶ºóÔÙÊÔ
+     echo å½“å‰windowsç³»ç»Ÿç‰ˆæœ¬å¤ªä½ï¼Œè¯·å‡çº§åå†è¯•
 	echo The current version of windows system is too low. Please upgrade and try again.
 	echo.
 	del/f /q winver.txt
@@ -98,7 +98,7 @@ if ("%winver%" LSS "19041") (
 	exit
 )
 
-echo µ±Ç°windowsÏµÍ³°æ±¾Æ¥Åäok
+echo å½“å‰windowsç³»ç»Ÿç‰ˆæœ¬åŒ¹é…ok
 echo Current Windows system version matches OK
 
 del/f /q winver.txt
@@ -107,17 +107,17 @@ set var=VER_OK
 echo !var!>>Return.txt 
 echo.
 
-echo ¿ªÊ¼²éÕÒËùÓĞµÄHIDÉè±¸device
+echo å¼€å§‹æŸ¥æ‰¾æ‰€æœ‰çš„HIDè®¾å¤‡device
 pnputil /scan-devices
-echo scan-devicesÉ¨ÃèÉè±¸ok
+echo scan-devicesæ‰«æè®¾å¤‡ok
 echo.
 pnputil /enum-devices /connected /class {745a17a0-74d3-11d0-b6fe-00a0c90f57da}  /ids /relations >hid_dev.txt
-echo enum-devicesÃ¶¾ÙÉè±¸ok
+echo enum-devicesæšä¸¾è®¾å¤‡ok
 echo.
 
-::¼ì²éÊÇ·ñÕÒµ½touchpad´¥¿Ø°åÉè±¸device
+::æ£€æŸ¥æ˜¯å¦æ‰¾åˆ°touchpadè§¦æ§æ¿è®¾å¤‡device
 find/i "HID_DEVICE_UP:000D_U:0005" hid_dev.txt || (
-     echo Î´·¢ÏÖ´¥¿Ø°åÉè±¸£¬ÎŞĞèĞ¶ÔØÇı¶¯
+     echo æœªå‘ç°è§¦æ§æ¿è®¾å¤‡ï¼Œæ— éœ€å¸è½½é©±åŠ¨
      echo No TouchPad device found, no need to unload the driver.
      echo.
      set var=TP_NODEV_ERR
@@ -125,41 +125,41 @@ find/i "HID_DEVICE_UP:000D_U:0005" hid_dev.txt || (
      exit
 )
 
-echo ÕÒµ½touchpad´¥¿Ø°åÉè±¸
+echo æ‰¾åˆ°touchpadè§¦æ§æ¿è®¾å¤‡
 echo TouchPad device found.
 echo.
 
-echo ¿ªÊ¼²éÕÒtouchpad´¥¿Ø°å¶ÔÓ¦µÄ¸¸¼¶I2CÉè±¸ÊµÀıInstanceID
+echo å¼€å§‹æŸ¥æ‰¾touchpadè§¦æ§æ¿å¯¹åº”çš„çˆ¶çº§I2Cè®¾å¤‡å®ä¾‹InstanceID
 echo.
  
- ::Ìæ»»»Ø³µ»»ĞĞ·ûÎª¶ººÅ·½±ã·Ö¸î£¬×¢ÒâºóÃæNULºóÃæÎª×·¼Ó>>Ğ´Èë
+ ::æ›¿æ¢å›è½¦æ¢è¡Œç¬¦ä¸ºé€—å·æ–¹ä¾¿åˆ†å‰²ï¼Œæ³¨æ„åé¢NULåé¢ä¸ºè¿½åŠ >>å†™å…¥
 for /f "delims=" %%i in (hid_dev.txt) do (
    set /p="%%i,"<nul>>dev0.tmp
  )
 
-::Ìæ»»HID_DEVICE_UP:000D_U:0005Îª#·½±ã·Ö¸î£¬×¢Òâset /pĞèÒª¼Ó¶ººÅ
+::æ›¿æ¢HID_DEVICE_UP:000D_U:0005ä¸º#æ–¹ä¾¿åˆ†å‰²ï¼Œæ³¨æ„set /péœ€è¦åŠ é€—å·
 for /f "delims=, tokens=*" %%i in (dev0.tmp) do (
     set "str=%%i"
     set "str=!str:HID_DEVICE_UP:000D_U:0005=#!"
     set /p="!str!,"<nul>>dev1.tmp
 )
 
-  ::»ñÈ¡#·Ö¸ô·ûºóÃæµÄÎÄ±¾£¬×¢Òâset /pĞèÒª¼Ó¶ººÅ
+  ::è·å–#åˆ†éš”ç¬¦åé¢çš„æ–‡æœ¬ï¼Œæ³¨æ„set /péœ€è¦åŠ é€—å·
  for /f "delims=# tokens=2,*" %%i in (dev1.tmp) do (
    set /p="%%i,"<nul>>dev2.tmp
  )
 
-  ::»ñÈ¡:·Ö¸ô·ûºóÃæµÄÎÄ±¾£¬×¢Òâset /pĞèÒª¼Ó¶ººÅ
+  ::è·å–:åˆ†éš”ç¬¦åé¢çš„æ–‡æœ¬ï¼Œæ³¨æ„set /péœ€è¦åŠ é€—å·
  for /f "delims=: tokens=2" %%i in (dev2.tmp) do (
    set /p="%%i,"<nul>>dev3.tmp
  )
 
-   ::»ñÈ¡,·Ö¸ô·ûÇ°ÃæµÄÎÄ±¾
+   ::è·å–,åˆ†éš”ç¬¦å‰é¢çš„æ–‡æœ¬
  for /f "delims=, tokens=1" %%i in (dev3.tmp) do (
   set /p="%%i"<nul>>dev4.tmp
  )
 
-    ::É¾³ı¿Õ¸ñ
+    ::åˆ é™¤ç©ºæ ¼
  for /f "delims= " %%i in (dev4.tmp) do (
    set "str=%%i"
    echo !str!>i2c_dev_InstanceID.txt
@@ -171,20 +171,20 @@ del/f /q dev*.tmp
  echo.
  
 
- ::ÑéÖ¤InstanceID
+ ::éªŒè¯InstanceID
   for /f "delims= " %%i in (i2c_dev_InstanceID.txt) do (
    set "i2c_dev_InstanceID=%%i"
    echo i2c_dev_InstanceID="!i2c_dev_InstanceID!"
    echo.
  )
  
- ::×¢Òâ¼Ó/connected±íÊ¾ÒÑ¾­Æô¶¯
+ ::æ³¨æ„åŠ /connectedè¡¨ç¤ºå·²ç»å¯åŠ¨
  pnputil /enum-devices /connected /instanceid "%i2c_dev_InstanceID%" /ids /relations /drivers >i2c_dev.txt
 echo.
 
- ::¼ì²éÊÇ·ñÎªi2cÉè±¸device
+ ::æ£€æŸ¥æ˜¯å¦ä¸ºi2cè®¾å¤‡device
 find/i "ACPI\PNP0C50" i2c_dev.txt || (
-     echo Î´·¢ÏÖi2c´¥¿Ø°åÉè±¸£¬ÎŞĞèĞ¶ÔØÇı¶¯
+     echo æœªå‘ç°i2cè§¦æ§æ¿è®¾å¤‡ï¼Œæ— éœ€å¸è½½é©±åŠ¨
      echo No i2c TouchPad device found, no need to unload the driver.
      echo.
      del/f /q i2c_dev.txt
@@ -193,7 +193,7 @@ find/i "ACPI\PNP0C50" i2c_dev.txt || (
      exit
 )
 
-echo ÕÒµ½i2c´¥¿Ø°åÉè±¸
+echo æ‰¾åˆ°i2cè§¦æ§æ¿è®¾å¤‡
 echo I2C TouchPad device found.
 echo.
 set var=TP_OK
@@ -201,9 +201,9 @@ echo !var!>>Return.txt
 echo.
  
  
-::¼ì²éÊÇ·ñ°²×°MouseLikeTouchPad_I2CÇı¶¯
+::æ£€æŸ¥æ˜¯å¦å®‰è£…MouseLikeTouchPad_I2Cé©±åŠ¨
 find/i "MouseLikeTouchPad_I2C" i2c_dev.txt || (
-     echo Î´·¢ÏÖMouseLikeTouchPad_I2CÇı¶¯£¬ÎŞĞèĞ¶ÔØÇı¶¯
+     echo æœªå‘ç°MouseLikeTouchPad_I2Cé©±åŠ¨ï¼Œæ— éœ€å¸è½½é©±åŠ¨
      echo No MouseLikeTouchPad_I2C driver found, no need to unload the driver.
      echo.
      del/f /q i2c_dev.txt
@@ -212,79 +212,79 @@ find/i "MouseLikeTouchPad_I2C" i2c_dev.txt || (
      exit
 )
 
-echo ÕÒµ½MouseLikeTouchPad_I2CÇı¶¯
+echo æ‰¾åˆ°MouseLikeTouchPad_I2Cé©±åŠ¨
 echo.
 
-echo ¿ªÊ¼²éÕÒMouseLikeTouchPad_I2CÇı¶¯oemÎÄ¼şÃû
+echo å¼€å§‹æŸ¥æ‰¾MouseLikeTouchPad_I2Cé©±åŠ¨oemæ–‡ä»¶å
 echo.
 
- ::É¾³ıÀúÊ·²ĞÁôÎÄ¼ş
+ ::åˆ é™¤å†å²æ®‹ç•™æ–‡ä»¶
 del/f /q drv*.tmp
  echo.
  
- ::Ìæ»»»Ø³µ»»ĞĞ·ûÎª¶ººÅ·½±ã·Ö¸î£¬×¢ÒâºóÃæNULºóÃæÎª×·¼Ó>>Ğ´Èë
+ ::æ›¿æ¢å›è½¦æ¢è¡Œç¬¦ä¸ºé€—å·æ–¹ä¾¿åˆ†å‰²ï¼Œæ³¨æ„åé¢NULåé¢ä¸ºè¿½åŠ >>å†™å…¥
 for /f "delims=" %%i in (i2c_dev.txt) do (
    set /p="%%i,"<nul>>drv0.tmp
  )
 
-::Ìæ»»mouseliketouchpad_i2c.infÎª#·½±ã·Ö¸î£¬×¢Òâset /pĞèÒª¼Ó¶ººÅ
+::æ›¿æ¢mouseliketouchpad_i2c.infä¸º#æ–¹ä¾¿åˆ†å‰²ï¼Œæ³¨æ„set /péœ€è¦åŠ é€—å·
 for /f "delims=, tokens=*" %%i in (drv0.tmp) do (
     set "str=%%i"
     set "str=!str:mouseliketouchpad_i2c.inf=#!"
     set /p="!str!,"<nul>>drv1.tmp
 )
 
-  ::»ñÈ¡#·Ö¸ô·ûÇ°ÃæµÄÎÄ±¾
+  ::è·å–#åˆ†éš”ç¬¦å‰é¢çš„æ–‡æœ¬
  for /f "delims=# tokens=1" %%i in (drv1.tmp) do (
    set /p="%%i"<nul>>drv2.tmp
  )
 
-::Ìæ»»oemÎª[·½±ã·Ö¸î£¬×¢Òâset /pĞèÒª¼Ó¶ººÅ
+::æ›¿æ¢oemä¸º[æ–¹ä¾¿åˆ†å‰²ï¼Œæ³¨æ„set /péœ€è¦åŠ é€—å·
 for /f "delims=, tokens=*" %%i in (drv2.tmp) do (
     set "str=%%i"
     set "str=!str:oem=[!"
     set /p="!str!,"<nul>>drv3.tmp
 )
 
-  ::»ñÈ¡×îºóÒ»¸ö[·Ö¸ô·ûºóÃæµÄÎÄ±¾£¬×¢ÒâtokensÒªÑ¡2¼°ºóÃæµÄËùÓĞÁĞ²¢ÇÒnulºóÃæ²»ÊÇ×·¼Ó¶øÊÇ>
+  ::è·å–æœ€åä¸€ä¸ª[åˆ†éš”ç¬¦åé¢çš„æ–‡æœ¬ï¼Œæ³¨æ„tokensè¦é€‰2åŠåé¢çš„æ‰€æœ‰åˆ—å¹¶ä¸”nulåé¢ä¸æ˜¯è¿½åŠ è€Œæ˜¯>
  for /f "delims=[ tokens=2,*" %%i in (drv3.tmp) do (
    set /p="%%i,"<nul>drv4.tmp
  )
 
-   ::»ñÈ¡,·Ö¸ô·ûÇ°ÃæµÄÎÄ±¾
+   ::è·å–,åˆ†éš”ç¬¦å‰é¢çš„æ–‡æœ¬
  for /f "delims=, tokens=1" %%i in (drv4.tmp) do (
   set /p="oem%%i"<nul>oemfilename.txt
  )
 echo.
 
- ::É¾³ıÀúÊ·²ĞÁôÎÄ¼ş
+ ::åˆ é™¤å†å²æ®‹ç•™æ–‡ä»¶
 del/f /q drv*.tmp
 echo.
 
 
-  ::¶ÁÈ¡oemfilename
+  ::è¯»å–oemfilename
   for /f "delims=" %%i in (oemfilename.txt) do (
    set "oemfilename=%%i"
    echo oemfilename="!oemfilename!"
    echo.
  )
 
- :Ğ¶ÔØoemµÚÈı·½Çı¶¯
+ :å¸è½½oemç¬¬ä¸‰æ–¹é©±åŠ¨
  pnputil /delete-driver "%oemfilename%" /uninstall /force
- echo delete-driverĞ¶ÔØÇı¶¯ok
+ echo delete-driverå¸è½½é©±åŠ¨ok
 echo.
 
 pnputil /scan-devices
-echo scan-devicesÉ¨ÃèÉè±¸ok
+echo scan-devicesæ‰«æè®¾å¤‡ok
 echo.
 
 
-::ÑéÖ¤ÊÇ·ñĞ¶ÔØ³É¹¦£¬×¢Òâ¼Ó/connected±íÊ¾ÒÑ¾­Æô¶¯
+::éªŒè¯æ˜¯å¦å¸è½½æˆåŠŸï¼Œæ³¨æ„åŠ /connectedè¡¨ç¤ºå·²ç»å¯åŠ¨
  pnputil /enum-devices /connected /instanceid "%i2c_dev_InstanceID%" /ids /relations /drivers >i2c_dev.txt
  echo.
  
 find/i "MouseLikeTouchPad_I2C" i2c_dev.txt && (
-     echo Ğ¶ÔØÇı¶¯Ê§°Ü£¬ÇëÖØĞÂÔÙÊÔ
+     echo å¸è½½é©±åŠ¨å¤±è´¥ï¼Œè¯·é‡æ–°å†è¯•
      echo Failed to unload the driver. Please try again.
      echo.
      del/f /q i2c_dev.txt
@@ -294,7 +294,7 @@ find/i "MouseLikeTouchPad_I2C" i2c_dev.txt && (
 )
 
 del/f /q i2c_dev.txt
-echo Ğ¶ÔØÇı¶¯³É¹¦
+echo å¸è½½é©±åŠ¨æˆåŠŸ
 echo Unload driver succeeded.
 echo.
 set var=UNDRV_OK
