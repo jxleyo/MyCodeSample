@@ -219,7 +219,7 @@ TrayDlg:
     LoadStringW(hInstance, IDC_PTPDRVMGR, szWindowClass, MAX_LOADSTRING);
 
      //创建对话框
-    hDlgIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));//MAKEINTRESOURCE(IDI_SMALL)//(LPCWSTR)IDI_SMALL)
+    hDlgIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_PTPDRVMGR));//MAKEINTRESOURCE(IDI_SMALL)//(LPCWSTR)IDI_SMALL)
     HWND hDlg = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_DIALOG_PTPDRVMGR), NULL, (DLGPROC)DlgWndProc);
 
     hInst = hInstance; // 将实例句柄存储在全局变量中
@@ -227,7 +227,7 @@ TrayDlg:
     ShowWindow(hDlg, nCmdShow);//
     UpdateWindow(hDlg);
     SetWindowText(hDlg, L"MouseLikeTouchPad_I2C_Driver");//设置标题栏名称szTitle
-    SetWindowLong(hDlg, GWL_STYLE, GetWindowLong(hDlg, GWL_STYLE) | DS_SETFOREGROUND);
+    //SetWindowLong(hDlg, GWL_STYLE, GetWindowLong(hDlg, GWL_STYLE) | DS_SETFOREGROUND);
 
 
     if (!AddTrayIcon(hInstance)) {
@@ -274,7 +274,7 @@ BOOL AddTrayIcon(HINSTANCE hInstance)
     TrayIconNID.uID = 0;//IDI_TRAY
     TrayIconNID.uFlags = NIF_ICON | NIF_MESSAGE | NIF_INFO | NIF_TIP;
     TrayIconNID.uCallbackMessage = WM_USER;
-    TrayIconNID.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    TrayIconNID.hIcon = LoadIcon(NULL, MAKEINTRESOURCE(IDI_SMALL));//IDI_APPLICATION//IDI_PTPDRVMGR
   
     wcscpy(TrayIconNID.szInfo, _T("PtpDrvMgr TrayIcon"));
     wcscpy(TrayIconNID.szTip, _T("PtpDrvMgr Tray"));//托盘图标悬浮显示信息
@@ -302,12 +302,14 @@ BOOL AddTrayIcon(HINSTANCE hInstance)
 
 void SetWndTop()
 {
+    //SendMessage(hMainDlgWnd, WM_SYSCOMMAND, (WPARAM)SC_RESTORE, NULL);
     ShowWindow(hMainDlgWnd, SW_SHOWNORMAL);//
     //UpdateWindow(hMainDlgWnd);
     //::SetWindowPos(hMainDlgWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE);//设置窗口置顶
     //SetForegroundWindow(hMainDlgWnd);
     //SetActiveWindow(hMainDlgWnd);//激活焦点窗口
     SetFocus(hMainDlgWnd);
+    UpdateWindow(hMainDlgWnd);
 }
 
 void ShowTrayMsg()//托盘气泡消息
@@ -316,7 +318,7 @@ void ShowTrayMsg()//托盘气泡消息
     lstrcpy(pNID->szInfo, L"冒泡消息1");
     pNID->uTimeout = 1500;
 
-    //LoadIconMetric(hInst, MAKEINTRESOURCE(IDI_PTPDRVMGR), LIM_LARGE, &(pNID->hBalloonIcon));//IDI_TRAYICON
+    //LoadIconMetric(hInst, MAKEINTRESOURCE(IDI_PTPDRVMGR), LIM_LARGE, &(pNID->hBalloonIcon));//LIM_LARGE//LIM_SMALL//IDI_TRAYICON
     Shell_NotifyIcon(NIM_MODIFY, pNID);
 }
 
@@ -328,7 +330,35 @@ BOOL CALLBACK DlgWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         case WM_INITDIALOG: {
             //设置标题栏图标
-            ::SendMessage(hWnd, WM_SETICON, ICON_BIG, (long)hDlgIcon);//ICON_BIG 设置窗口的大图标（即Alt + Tab图标）/ICON_SMALL 设置窗口的小图标（即窗口标题栏图标）
+            ::SendMessage(hWnd, WM_SETICON, ICON_SMALL, (long)hDlgIcon);//ICON_BIG 设置窗口的大图标（即Alt + Tab图标）/ICON_SMALL 设置窗口的小图标（即窗口标题栏图标）
+        }
+        break;
+
+
+        case WM_SYSCOMMAND: {
+            int wmId = LOWORD(wParam);
+            // 分析菜单选择:
+            switch (wmId)
+            {
+                case SC_RESTORE: {
+                    //MessageBox(hWnd, L"SC_RESTORE", L"PtpDrvMgr", MB_OK);
+                    ShowWindow(hWnd, SW_RESTORE);//恢复窗口
+                }
+                break;
+
+                case SC_MINIMIZE: {
+                    ShowWindow(hWnd, SW_HIDE);//隐藏窗口
+                }
+                break;
+
+                case SC_CLOSE: {
+                    ShowWindow(hWnd, SW_HIDE);//隐藏窗口
+                }
+                 break;   
+
+                default:
+                    return DefWindowProc(hWnd, message, wParam, lParam);
+            }
         }
         break;
 
@@ -467,7 +497,6 @@ BOOL CALLBACK DlgWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             return DefWindowProc(hWnd, message, wParam, lParam);
         }  
 
-        return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
 }
