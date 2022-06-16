@@ -63,7 +63,4 @@ __drv_allocatesMem(object) LPTSTR* GetDevMultiSz(_In_ HDEVINFO Devs, _In_ PSP_DE
 __drv_allocatesMem(object) LPTSTR* GetMultiSzIndexArray(_In_ __drv_aliasesMem LPTSTR MultiSz);
 
 
-void SetWndTop();
-BOOL AddTrayIcon(HINSTANCE hInstance);
-void ShowTrayMsg();
 
