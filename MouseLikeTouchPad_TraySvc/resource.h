@@ -11,6 +11,8 @@
 #define IDD_DIALOG_ABOUT                131
 #define IDD_DIALOG_SETTING              132
 #define IDD_DIALOG_REG                  133
+#define WM_SYSTEMTRAY                   503
+#define IDC_TAB                         1000
 #define IDC_STATIC_VER                  1001
 #define IDC_STATIC_COPYRIGHT            1002
 #define IDC_STATIC_ICONSMALL            1003
@@ -48,16 +50,13 @@
 #define ID_ABOUT                        32787
 #define ID_WHEELENABLE                  32788
 
-#define WM_SYSTEMTRAY         (WM_USER+103) //响应鼠标在托盘图标上的事件
-
-
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1000
+#define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
