@@ -12,8 +12,8 @@ class CtraydlgDlg : public CDialogEx
 public:
 	CtraydlgDlg(CWnd* pParent = nullptr);	// 标准构造函数
 
-	BOOL CtraydlgDlg::DestroyWindow();
-	void CtraydlgDlg::OnSize(UINT nType, int cx, int cy);
+	//BOOL CtraydlgDlg::DestroyWindow();
+	//void CtraydlgDlg::OnSize(UINT nType, int cx, int cy);
 
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
@@ -40,6 +40,9 @@ protected:
 public:
 	afx_msg void OnTest1();
 	afx_msg void OnTest2();
+	afx_msg void OnExit();
+	afx_msg void AddTrayIcon();
+	BOOL CtraydlgDlg::ShowBalloonTip(LPCWSTR szMsg, LPCWSTR szTitle, UINT uTimeOut, DWORD dwInfoFlags);
 	LRESULT OnSystemTray(WPARAM wParam, LPARAM lParam);
 
 	virtual void OnOK();

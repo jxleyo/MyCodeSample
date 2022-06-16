@@ -67,6 +67,7 @@ BEGIN_MESSAGE_MAP(CtraydlgDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_COMMAND(IDM_TEST1, &CtraydlgDlg::OnTest1)
 	ON_COMMAND(IDM_TEST2, &CtraydlgDlg::OnTest2)
+	ON_COMMAND(IDM_EXIT, &CtraydlgDlg::OnExit)
 	ON_MESSAGE(WM_SYSTEMTRAY, OnSystemTray)
 END_MESSAGE_MAP()
 
@@ -78,29 +79,14 @@ BOOL CtraydlgDlg::OnInitDialog()
 
 	CDialogEx::OnInitDialog();
 
+	AddTrayIcon();//添加托盘图标
+
+	ShowBalloonTip(L"托盘图标就绪", L"托盘图标气泡消息", 1500, NIIF_INFO);
+
 	// 加载菜单资源
 	m_Menu.LoadMenu(IDR_TRAYMENU);
 	// 为对话框设置菜单
 	this->SetMenu(&m_Menu);
-
-	//---------------------------托盘显示---------------------------------//
-
-	m_nid.cbSize = (DWORD)sizeof(NOTIFYICONDATA);
-
-	m_nid.hWnd = this->m_hWnd;
-
-	m_nid.uID = IDR_MAINFRAME;
-
-	m_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-
-	m_nid.uCallbackMessage = WM_SYSTEMTRAY;             // 自定义的消息名称
-
-	m_nid.hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME));
-
-	wcscpy_s(m_nid.szTip, L"服务器程序");                // 信息提示条为"服务器程序"，VS2008 UNICODE编码用wcscpy_s()函数
-
-	Shell_NotifyIcon(NIM_ADD, &m_nid);                // 在托盘区添加图标
-
 
 	// 将“关于...”菜单项添加到系统菜单中。
 
@@ -127,7 +113,15 @@ BOOL CtraydlgDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	ShowWindow(SW_SHOWNORMAL);
+
+	CString sCmdLine = AfxGetApp()->m_lpCmdLine;//只包含参数
+	if (sCmdLine == L"ShowDialog") {//调用参数 //wcscmp(sCmdLine, L"ShowDialog") == 0//sCmdLine == L"ShowDialog"//sCmdLine.Compare(L"ShowDialog")==0
+		//AfxMessageBox(sCmdLine);
+		ShowWindow(SW_SHOWNORMAL);
+	}
+	else {
+		ShowWindow(SW_HIDE);
+	}
 
 	// TODO: 在此添加额外的初始化代码
 
@@ -204,15 +198,26 @@ void CtraydlgDlg::OnTest2()
 }
 
 
-void CtraydlgDlg::OnSize(UINT nType, int cx, int cy)
+void CtraydlgDlg::OnExit()
 {
-	CDialog::OnSize(nType, cx, cy);
-	// TODO: Add your message handler code here
-	if (nType == SIZE_MINIMIZED)
-	{
-		ShowWindow(SW_HIDE); // 当最小化市，隐藏主窗口              
-	}
+	 //在托盘区删除图标
+
+	Shell_NotifyIcon(NIM_DELETE, &m_nid);
+	/*退出程序语句exit(0);postquitmessage(0);//onok(); oncancel();//sendmessage(wm_close, 0, 0);//exitprocess(0);//其中以exit(0)最为迅速，在实践方面*/
+	PostQuitMessage(0);
+	//ExitProcess(EXIT_OK);
+
 }
+
+//void CtraydlgDlg::OnSize(UINT nType, int cx, int cy)
+//{
+//	CDialog::OnSize(nType, cx, cy);
+//	// TODO: Add your message handler code here
+//	if (nType == SIZE_MINIMIZED)
+//	{
+//		ShowWindow(SW_HIDE); // 当最小化市，隐藏主窗口              
+//	}
+//}
 
 //屏蔽 Esc 和 Enter 关闭窗口（由于Esc直接调用 OnCancel()，Enter 直接调用 OnOk()）
 void CtraydlgDlg::OnOK()
@@ -231,18 +236,56 @@ void CtraydlgDlg::OnClose()
 	//CDialogEx::OnCancel();
 }
 
-BOOL CtraydlgDlg::DestroyWindow()
+//BOOL CtraydlgDlg::DestroyWindow()
+//{
+//	// TODO: Add your specialized code here and/or call the base class
+//
+//	// 在托盘区删除图标
+//
+//	Shell_NotifyIcon(NIM_DELETE, &m_nid);
+//	/*退出程序语句exit(0);postquitmessage(0);//onok(); oncancel();//sendmessage(wm_close, 0, 0);//exitprocess(0);//其中以exit(0)最为迅速，在实践方面*/
+//	PostQuitMessage(0);
+//	//ExitProcess(EXIT_OK);
+//	return CDialog::DestroyWindow();
+//
+//}
+
+void CtraydlgDlg::AddTrayIcon()
 {
-	// TODO: Add your specialized code here and/or call the base class
+	//---------------------------托盘显示---------------------------------//
 
-	// 在托盘区删除图标
+	m_nid.cbSize = (DWORD)sizeof(NOTIFYICONDATA);
 
-	Shell_NotifyIcon(NIM_DELETE, &m_nid);
+	m_nid.hWnd = this->m_hWnd;
 
-	return CDialog::DestroyWindow();
+	m_nid.uID = IDR_MAINFRAME;
 
+	m_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+
+	m_nid.uCallbackMessage = WM_SYSTEMTRAY;             // 自定义的消息名称
+
+	m_nid.hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME));
+
+	wcscpy_s(m_nid.szTip, L"仿鼠标触摸板服务程序");                // 信息提示条
+
+	Shell_NotifyIcon(NIM_ADD, &m_nid);                // 在托盘区添加图标
 }
 
+BOOL CtraydlgDlg::ShowBalloonTip(LPCWSTR szMsg, LPCWSTR szTitle, UINT uTimeOut, DWORD dwInfoFlags)
+{
+	//---------------------------托盘冒泡消息---------------------------------//
+
+	m_nid.cbSize = (DWORD)sizeof(NOTIFYICONDATA);
+
+	m_nid.uFlags = NIF_INFO;//NIF_INFO//
+
+	m_nid.hIcon = LoadIcon(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME));
+
+	wcscpy_s(m_nid.szInfo, szMsg?szMsg:L"");              
+	wcscpy_s(m_nid.szInfoTitle, szTitle ? szTitle : L"");
+
+	return Shell_NotifyIcon(NIM_MODIFY, &m_nid);   
+}
 
 LRESULT CtraydlgDlg::OnSystemTray(WPARAM wParam, LPARAM lParam)
 {
@@ -263,8 +306,8 @@ LRESULT CtraydlgDlg::OnSystemTray(WPARAM wParam, LPARAM lParam)
 			::GetCursorPos(lpoint);                    // 得到鼠标位置
 			CMenu menu;
 			menu.CreatePopupMenu();                    // 声明一个弹出式菜单
-
-			menu.AppendMenu(MF_STRING, WM_DESTROY, L"关闭");
+			
+			menu.AppendMenu(MF_STRING, IDM_EXIT, L"关闭");//menu.AppendMenu(MF_STRING, WM_DESTROY, L"关闭");//
 			menu.AppendMenu(MF_STRING, IDM_TEST1, L"tesnmenu1");
 			menu.AppendMenu(MF_STRING, IDM_TEST2, L"menu2tes");
 

@@ -11,7 +11,9 @@
 #define IDI_ICON1                       131
 #define IDM_TEST1                       32774
 #define IDM_TEST2                       32775
+#define IDM_EXIT                       32776
 #define WM_SYSTEMTRAY         (WM_USER+103) //响应鼠标在托盘图标上的事件
+
 
 // Next default values for new objects
 // 
