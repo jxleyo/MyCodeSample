@@ -28,6 +28,16 @@ protected:
 	CMenu m_Menu;
 	NOTIFYICONDATA m_nid;
 
+	// TraySvc标签页
+	CTabCtrl m_TablCtrl;
+
+	CDialogEx m_TablDialog_About;
+	CDialogEx m_TablDialog_Setting;
+	CDialogEx m_TablDialog_Reg;
+
+	INT mCurTab;
+	
+
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
@@ -51,4 +61,5 @@ public:
 	LRESULT OnSystemTray(WPARAM wParam, LPARAM lParam);
 
 
+	afx_msg void OnSelchangeTab(NMHDR* pNMHDR, LRESULT* pResult);
 };

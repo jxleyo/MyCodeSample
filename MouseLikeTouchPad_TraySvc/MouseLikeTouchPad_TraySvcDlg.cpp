@@ -26,6 +26,7 @@ CMouseLikeTouchPadTraySvcDlg::CMouseLikeTouchPadTraySvcDlg(CWnd* pParent /*=null
 void CMouseLikeTouchPadTraySvcDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_TAB, m_TablCtrl);
 }
 
 BEGIN_MESSAGE_MAP(CMouseLikeTouchPadTraySvcDlg, CDialogEx)
@@ -34,6 +35,7 @@ BEGIN_MESSAGE_MAP(CMouseLikeTouchPadTraySvcDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_COMMAND(IDM_EXIT, &CMouseLikeTouchPadTraySvcDlg::OnExit)
 	ON_MESSAGE(WM_SYSTEMTRAY, OnSystemTray)
+	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB, &CMouseLikeTouchPadTraySvcDlg::OnSelchangeTab)
 END_MESSAGE_MAP()
 
 
@@ -57,6 +59,32 @@ BOOL CMouseLikeTouchPadTraySvcDlg::OnInitDialog()
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
+
+	//取得属性页的大小
+	CRect tabRect;
+	m_TablCtrl.GetClientRect(&tabRect);
+
+	//调整对话框
+	tabRect.left += 1;
+	tabRect.right -= 1;
+	tabRect.top += 50;
+	tabRect.bottom += 1;
+
+	m_TablCtrl.InsertItem(0, L"关于仿鼠标触摸板驱动");
+	m_TablCtrl.InsertItem(1, L"设置状态和帮助");
+	m_TablCtrl.InsertItem(2, L"软件注册");
+
+	m_TablDialog_About.Create(IDD_DIALOG_ABOUT, &m_TablCtrl);
+	m_TablDialog_Setting.Create(IDD_DIALOG_SETTING, &m_TablCtrl);
+	m_TablDialog_Reg.Create(IDD_DIALOG_REG, &m_TablCtrl);
+
+	//调整标签页位置和显示隐藏属性
+	//m_TablDialog_About.ShowWindow(SW_NORMAL);
+	m_TablDialog_About.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
+	mCurTab = 0;
+	m_TablCtrl.SetCurSel(mCurTab);
+
+
 
 	CString sCmdLine = AfxGetApp()->m_lpCmdLine;//只包含参数
 	if (sCmdLine == L"ShowDialog") {//调用参数 //wcscmp(sCmdLine, L"ShowDialog") == 0//sCmdLine == L"ShowDialog"//sCmdLine.Compare(L"ShowDialog")==0
@@ -232,17 +260,42 @@ LRESULT CMouseLikeTouchPadTraySvcDlg::OnSystemTray(WPARAM wParam, LPARAM lParam)
 			LPPOINT lpoint = new tagPOINT;
 
 			::GetCursorPos(lpoint);                    // 得到鼠标位置
-			CMenu menu;
-			menu.CreatePopupMenu();                    // 声明一个弹出式菜单
 
-			menu.AppendMenu(MF_STRING, IDM_EXIT, L"关闭");//menu.AppendMenu(MF_STRING, WM_DESTROY, L"关闭");//
+			// 经常使用菜单，但是如果直接加载菜单资源，调用TrackPopupMenu时 就会出现菜单显示不全的问题， 基本上解决方法就是先GetSubMenu，再TrackPopupMenu，
+				//两种方法，一种就是在菜单资源里把所要加载的资源放到一个Popup属性的菜单下面，
+				//另外就是程序创建一个Popup菜单，把菜单资源附加到这个Popup菜单上，再从Popup菜单中GetSubMenu(0)  取得需要的菜单
+
+			CMenu menuTrack;
+			menuTrack.CreatePopupMenu();                    // 声明一个弹出式菜单
+
+			CMenu menuTray;       // 菜单（包含主菜单栏和子菜单）   
+			CMenu* pSubMenu;  // 右键菜单   
+
+			// 加载菜单资源到menu对象   
+			menuTray.LoadMenu(IDR_TRAYMENU);
+
+			// 因为右键菜单是弹出式菜单，不包含主菜单栏，所以取子菜单   
+			pSubMenu = menuTray.GetSubMenu(0);
+			//menuTrack.m_hMenu= *pSubMenu;
+			menuTrack.Attach(menuTray);
+
+			menuTrack.AppendMenu(MF_STRING, IDM_EXIT, L"关闭");//menu.AppendMenu(MF_STRING, WM_DESTROY, L"关闭");//
+			//menuTrack.EnableMenuItem(IDM_EXIT, MFS_GRAYED);//使某项菜单变灰
+
 
 			SetForegroundWindow();//设置当失去焦点时菜单自动消失
+			
+			// 弹出右键菜单，菜单左侧与point.x坐标值对齐 ,底部与y坐标值对齐  
+			//pSubMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, lpoint->x, lpoint->y, this);
+			menuTrack.TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, lpoint->x, lpoint->y, this);
 
-			menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, lpoint->x, lpoint->y, this);
+			//销毁菜单
+			//pSubMenu->Detach();
+			//pSubMenu->DestroyMenu();
 
-			HMENU hmenu = menu.Detach();
-			menu.DestroyMenu();
+			HMENU hmenu = menuTrack.Detach();
+			menuTrack.DestroyMenu();
+
 			delete lpoint;
 		}
 						 break;
@@ -258,3 +311,75 @@ LRESULT CMouseLikeTouchPadTraySvcDlg::OnSystemTray(WPARAM wParam, LPARAM lParam)
 //	//SendMessage(hWnd, message, wParam, lParam);
 //}
 
+
+
+void CMouseLikeTouchPadTraySvcDlg::OnSelchangeTab(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	// TODO: 在此添加控件通知处理程序代码
+
+	//取得属性页的大小
+	CRect tabRect;
+	m_TablCtrl.GetClientRect(&tabRect);
+
+	//调整对话框
+	tabRect.left += 1;
+	tabRect.right -= 1;
+	tabRect.top += 50;
+	tabRect.bottom += 1;
+
+
+	//GetCurSel返回当前被选中的标签的索引号（以0为基础算起）
+	int sel = m_TablCtrl.GetCurSel();
+	switch (sel)
+	{
+		case 0:
+
+			m_TablDialog_About.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
+			m_TablDialog_Setting.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+			m_TablDialog_Reg.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+
+			//mCurTab = 0;
+			//m_TablCtrl.SetCurSel(sel);
+
+			//m_TablDialog_About.ShowWindow(SW_SHOW);
+			//m_TablDialog_Setting.ShowWindow(SW_HIDE);
+
+			break;
+
+		case 1:
+
+			m_TablDialog_About.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+			m_TablDialog_Setting.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
+			m_TablDialog_Reg.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+
+			//mCurTab = 1;
+			//m_TablCtrl.SetCurSel(sel);
+
+			//m_TablDialog_Setting.ShowWindow(SW_SHOW);
+			//m_TablDialog_About.ShowWindow(SW_HIDE);
+
+			break;
+
+		case 2:
+
+			m_TablDialog_About.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+			m_TablDialog_Setting.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
+			m_TablDialog_Reg.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
+
+			//mCurTab = 2;
+			//m_TablCtrl.SetCurSel(sel);
+
+			//m_TablDialog_Setting.ShowWindow(SW_SHOW);
+			//m_TablDialog_About.ShowWindow(SW_HIDE);
+
+			break;
+
+		default:
+
+			break;
+
+	}
+
+	*pResult = 0;
+
+}
