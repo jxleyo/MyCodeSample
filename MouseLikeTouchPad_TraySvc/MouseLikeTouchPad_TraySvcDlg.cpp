@@ -265,36 +265,45 @@ LRESULT CMouseLikeTouchPadTraySvcDlg::OnSystemTray(WPARAM wParam, LPARAM lParam)
 				//两种方法，一种就是在菜单资源里把所要加载的资源放到一个Popup属性的菜单下面，
 				//另外就是程序创建一个Popup菜单，把菜单资源附加到这个Popup菜单上，再从Popup菜单中GetSubMenu(0)  取得需要的菜单
 
-			CMenu menuTrack;
-			menuTrack.CreatePopupMenu();                    // 声明一个弹出式菜单
+			CMenu PopMenu;
+			PopMenu.CreatePopupMenu();                    // 声明一个弹出式菜单
 
-			CMenu menuTray;       // 菜单（包含主菜单栏和子菜单）   
-			CMenu* pSubMenu;  // 右键菜单   
+			//CMenu TrayMenu;
+			//TrayMenu.LoadMenu(IDR_TRAYMENU);//从一个资源加载菜单
 
-			// 加载菜单资源到menu对象   
-			menuTray.LoadMenu(IDR_TRAYMENU);
+			//PopMenu.AppendMenu(MF_POPUP, (UINT_PTR)TrayMenu.m_hMenu, L"Pop");
+			PopMenu.AppendMenu(MF_STRING, IDM_EXIT, L"关闭");//PopMenu.AppendMenu(MF_STRING, WM_DESTROY, L"关闭");//
+			//PopMenu.EnableMenuItem(IDM_EXIT, MFS_GRAYED);//使某项菜单变灰
 
-			// 因为右键菜单是弹出式菜单，不包含主菜单栏，所以取子菜单   
-			pSubMenu = menuTray.GetSubMenu(0);
-			//menuTrack.m_hMenu= *pSubMenu;
-			menuTrack.Attach(menuTray);
+			PopMenu.AppendMenu(MF_STRING, ID_OPMETHOD, L"操作方式（仿鼠标式触摸板）");
+			PopMenu.EnableMenuItem(ID_OPMETHOD, MFS_GRAYED);//使某项菜单变灰
 
-			menuTrack.AppendMenu(MF_STRING, IDM_EXIT, L"关闭");//menu.AppendMenu(MF_STRING, WM_DESTROY, L"关闭");//
-			//menuTrack.EnableMenuItem(IDM_EXIT, MFS_GRAYED);//使某项菜单变灰
+			PopMenu.AppendMenu(MF_STRING, ID_WHEELENABLE, L"滚轮启用（开）");
+			PopMenu.EnableMenuItem(ID_WHEELENABLE, MFS_GRAYED);//使某项菜单变灰
 
+			PopMenu.AppendMenu(MF_STRING, ID_WHEELMODE, L"滚轮方式（模拟鼠标）");
+			PopMenu.EnableMenuItem(ID_WHEELMODE, MFS_GRAYED);//使某项菜单变灰
+
+			PopMenu.AppendMenu(MF_STRING, ID_SENS, L"灵敏度（高）");
+			PopMenu.EnableMenuItem(ID_SENS, MFS_GRAYED);//使某项菜单变灰
+
+			PopMenu.AppendMenu(MF_STRING, ID_FUNCDEF, L"功能定义图。。。");
+			PopMenu.AppendMenu(MF_STRING, ID_MANUAL, L"说明手册");
+			PopMenu.AppendMenu(MF_STRING, ID_VIDEOTUR, L"视频教程");
+			PopMenu.AppendMenu(MF_STRING, ID_ABOUT, L"关于。。。");
+
+			//// 因为右键菜单是弹出式菜单，不包含主菜单栏，所以取子菜单   
+			//CMenu* TrackMenu = TrayMenu.GetSubMenu(0);
 
 			SetForegroundWindow();//设置当失去焦点时菜单自动消失
 			
 			// 弹出右键菜单，菜单左侧与point.x坐标值对齐 ,底部与y坐标值对齐  
-			//pSubMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, lpoint->x, lpoint->y, this);
-			menuTrack.TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, lpoint->x, lpoint->y, this);
+			//TrackMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, lpoint->x, lpoint->y, this);
+			PopMenu.TrackPopupMenu(TPM_LEFTALIGN | TPM_BOTTOMALIGN, lpoint->x, lpoint->y, this);
 
 			//销毁菜单
-			//pSubMenu->Detach();
-			//pSubMenu->DestroyMenu();
-
-			HMENU hmenu = menuTrack.Detach();
-			menuTrack.DestroyMenu();
+			HMENU hmenu = PopMenu.Detach();
+			PopMenu.DestroyMenu();
 
 			delete lpoint;
 		}
