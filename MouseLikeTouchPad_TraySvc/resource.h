@@ -9,8 +9,10 @@
 #define IDR_MAINFRAME                   128
 #define IDR_TRAYMENU                    130
 #define IDD_DIALOG_REG                  133
-#define IDB_PNG_SKETCHEN                133
-#define IDB_PNG_SKETCHCN                134
+#define IDB_BMP_SKETCHCN                135
+#define IDB_BMP_SKETCHEN                136
+#define IDB_BITMAP1                     138
+#define IDB_BMP_ICONSMALL               138
 #define WM_SYSTEMTRAY                   503
 #define IDC_STATIC_VER                  1001
 #define IDC_STATIC_COPYRIGHT            1002
@@ -21,6 +23,7 @@
 #define IDC_STATIC_SKETCHIMAGECONTAINER 1014
 #define IDC_STATIC_SKETCHIMAGE          1015
 #define IDC_STATIC_PAY                  1016
+#define IDC_STATIC_ICONSMAL             1016
 #define IDC_STATIC_PAYAL                1017
 #define IDC_STATIC_PAYALINFO            1018
 #define IDC_STATIC_REGSN                1019
@@ -42,9 +45,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        135
+#define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1017
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
