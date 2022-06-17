@@ -26,7 +26,6 @@ CMouseLikeTouchPadTraySvcDlg::CMouseLikeTouchPadTraySvcDlg(CWnd* pParent /*=null
 void CMouseLikeTouchPadTraySvcDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_TAB, m_TablCtrl);
 }
 
 BEGIN_MESSAGE_MAP(CMouseLikeTouchPadTraySvcDlg, CDialogEx)
@@ -35,7 +34,12 @@ BEGIN_MESSAGE_MAP(CMouseLikeTouchPadTraySvcDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_COMMAND(IDM_EXIT, &CMouseLikeTouchPadTraySvcDlg::OnExit)
 	ON_MESSAGE(WM_SYSTEMTRAY, OnSystemTray)
-	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB, &CMouseLikeTouchPadTraySvcDlg::OnSelchangeTab)
+	ON_COMMAND(ID_MANUAL, &CMouseLikeTouchPadTraySvcDlg::OnManual)
+	ON_COMMAND(ID_VIDEOTUTOR, &CMouseLikeTouchPadTraySvcDlg::OnVideotutor)
+	ON_COMMAND(ID_ABOUT, &CMouseLikeTouchPadTraySvcDlg::OnAbout)
+	ON_NOTIFY(NM_CLICK, IDC_SYSLINK_WEBSITE, &CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkWebsite)
+	ON_BN_CLICKED(IDC_REGISTRY, &CMouseLikeTouchPadTraySvcDlg::OnClickedRegistry)
+	ON_NOTIFY(NM_CLICK, IDC_SYSLINK_EULA, &CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkEula)
 END_MESSAGE_MAP()
 
 
@@ -60,32 +64,6 @@ BOOL CMouseLikeTouchPadTraySvcDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	//取得属性页的大小
-	CRect tabRect;
-	m_TablCtrl.GetClientRect(&tabRect);
-
-	//调整对话框
-	tabRect.left += 1;
-	tabRect.right -= 1;
-	tabRect.top += 50;
-	tabRect.bottom += 1;
-
-	m_TablCtrl.InsertItem(0, L"关于仿鼠标触摸板驱动");
-	m_TablCtrl.InsertItem(1, L"设置状态和帮助");
-	m_TablCtrl.InsertItem(2, L"软件注册");
-
-	m_TablDialog_About.Create(IDD_DIALOG_ABOUT, &m_TablCtrl);
-	m_TablDialog_Setting.Create(IDD_DIALOG_SETTING, &m_TablCtrl);
-	m_TablDialog_Reg.Create(IDD_DIALOG_REG, &m_TablCtrl);
-
-	//调整标签页位置和显示隐藏属性
-	//m_TablDialog_About.ShowWindow(SW_NORMAL);
-	m_TablDialog_About.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
-	mCurTab = 0;
-	m_TablCtrl.SetCurSel(mCurTab);
-
-
-
 	CString sCmdLine = AfxGetApp()->m_lpCmdLine;//只包含参数
 	if (sCmdLine == L"ShowDialog") {//调用参数 //wcscmp(sCmdLine, L"ShowDialog") == 0//sCmdLine == L"ShowDialog"//sCmdLine.Compare(L"ShowDialog")==0
 		//AfxMessageBox(sCmdLine);
@@ -97,9 +75,6 @@ BOOL CMouseLikeTouchPadTraySvcDlg::OnInitDialog()
 		PostMessage(WM_SYSCOMMAND, SC_CLOSE, 0);
 	}
 	
-
-	// TODO: 在此添加额外的初始化代码
-
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -275,21 +250,25 @@ LRESULT CMouseLikeTouchPadTraySvcDlg::OnSystemTray(WPARAM wParam, LPARAM lParam)
 			PopMenu.AppendMenu(MF_STRING, IDM_EXIT, L"关闭");//PopMenu.AppendMenu(MF_STRING, WM_DESTROY, L"关闭");//
 			//PopMenu.EnableMenuItem(IDM_EXIT, MFS_GRAYED);//使某项菜单变灰
 
+			PopMenu.AppendMenu(MF_STRING, 0, L"当前设置");
+			PopMenu.AppendMenu(MF_SEPARATOR, 0, L"");
+
 			PopMenu.AppendMenu(MF_STRING, ID_OPMETHOD, L"操作方式（仿鼠标式触摸板）");
 			PopMenu.EnableMenuItem(ID_OPMETHOD, MFS_GRAYED);//使某项菜单变灰
 
-			PopMenu.AppendMenu(MF_STRING, ID_WHEELENABLE, L"滚轮启用（开）");
-			PopMenu.EnableMenuItem(ID_WHEELENABLE, MFS_GRAYED);//使某项菜单变灰
+			PopMenu.AppendMenu(MF_STRING, ID_WHEELSTATUS, L"滚轮启用（开）");
+			PopMenu.EnableMenuItem(ID_WHEELSTATUS, MFS_GRAYED);//使某项菜单变灰
 
 			PopMenu.AppendMenu(MF_STRING, ID_WHEELMODE, L"滚轮方式（模拟鼠标）");
 			PopMenu.EnableMenuItem(ID_WHEELMODE, MFS_GRAYED);//使某项菜单变灰
 
-			PopMenu.AppendMenu(MF_STRING, ID_SENS, L"灵敏度（高）");
-			PopMenu.EnableMenuItem(ID_SENS, MFS_GRAYED);//使某项菜单变灰
+			PopMenu.AppendMenu(MF_STRING, ID_SENSITIVITY, L"灵敏度（高）");
+			PopMenu.EnableMenuItem(ID_SENSITIVITY, MFS_GRAYED);//使某项菜单变灰
 
-			PopMenu.AppendMenu(MF_STRING, ID_FUNCDEF, L"功能定义图。。。");
+			PopMenu.AppendMenu(MF_SEPARATOR, 0, L"");//分割线
+
 			PopMenu.AppendMenu(MF_STRING, ID_MANUAL, L"说明手册");
-			PopMenu.AppendMenu(MF_STRING, ID_VIDEOTUR, L"视频教程");
+			PopMenu.AppendMenu(MF_STRING, ID_VIDEOTUTOR, L"视频教程");
 			PopMenu.AppendMenu(MF_STRING, ID_ABOUT, L"关于。。。");
 
 			//// 因为右键菜单是弹出式菜单，不包含主菜单栏，所以取子菜单   
@@ -322,73 +301,40 @@ LRESULT CMouseLikeTouchPadTraySvcDlg::OnSystemTray(WPARAM wParam, LPARAM lParam)
 
 
 
-void CMouseLikeTouchPadTraySvcDlg::OnSelchangeTab(NMHDR* pNMHDR, LRESULT* pResult)
+void CMouseLikeTouchPadTraySvcDlg::OnManual()
 {
-	// TODO: 在此添加控件通知处理程序代码
-
-	//取得属性页的大小
-	CRect tabRect;
-	m_TablCtrl.GetClientRect(&tabRect);
-
-	//调整对话框
-	tabRect.left += 1;
-	tabRect.right -= 1;
-	tabRect.top += 50;
-	tabRect.bottom += 1;
+	ShellExecute(NULL, L"open", L"https://github.com/jxleyo", NULL, NULL, SW_SHOWNORMAL);
+}
 
 
-	//GetCurSel返回当前被选中的标签的索引号（以0为基础算起）
-	int sel = m_TablCtrl.GetCurSel();
-	switch (sel)
-	{
-		case 0:
+void CMouseLikeTouchPadTraySvcDlg::OnVideotutor()
+{
+	ShellExecute(NULL, L"open", L"https://space.bilibili.com/409976933", NULL, NULL, SW_SHOWNORMAL);
+	//ShellExecute(NULL, L"open", L"https://www.youtube.com/channel/UC3hQyN-2ZL_q7pCKoASAblQ", NULL, NULL, SW_SHOWNORMAL);
+}
 
-			m_TablDialog_About.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
-			m_TablDialog_Setting.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
-			m_TablDialog_Reg.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
 
-			//mCurTab = 0;
-			//m_TablCtrl.SetCurSel(sel);
+void CMouseLikeTouchPadTraySvcDlg::OnAbout()
+{
+	this->ShowWindow(SW_SHOWNORMAL);         // 
+}
 
-			//m_TablDialog_About.ShowWindow(SW_SHOW);
-			//m_TablDialog_Setting.ShowWindow(SW_HIDE);
 
-			break;
-
-		case 1:
-
-			m_TablDialog_About.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
-			m_TablDialog_Setting.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
-			m_TablDialog_Reg.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
-
-			//mCurTab = 1;
-			//m_TablCtrl.SetCurSel(sel);
-
-			//m_TablDialog_Setting.ShowWindow(SW_SHOW);
-			//m_TablDialog_About.ShowWindow(SW_HIDE);
-
-			break;
-
-		case 2:
-
-			m_TablDialog_About.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
-			m_TablDialog_Setting.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_HIDEWINDOW);
-			m_TablDialog_Reg.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), SWP_SHOWWINDOW);
-
-			//mCurTab = 2;
-			//m_TablCtrl.SetCurSel(sel);
-
-			//m_TablDialog_Setting.ShowWindow(SW_SHOW);
-			//m_TablDialog_About.ShowWindow(SW_HIDE);
-
-			break;
-
-		default:
-
-			break;
-
-	}
-
+void CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkWebsite(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	ShellExecute(NULL, L"open", L"https://github.com/jxleyo", NULL, NULL, SW_SHOWNORMAL);
 	*pResult = 0;
+}
 
+
+void CMouseLikeTouchPadTraySvcDlg::OnClickedRegistry()
+{
+	ShellExecute(NULL, L"open", L"https://github.com/jxleyo", NULL, NULL, SW_SHOWNORMAL);
+}
+
+
+void CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkEula(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	ShellExecute(NULL, L"open", L"https://github.com/jxleyo", NULL, NULL, SW_SHOWNORMAL);
+	*pResult = 0;
 }

@@ -62,5 +62,11 @@
     <Image Include="res\Small.ico">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="res\MouseLikeTouchPad_SketchCN.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\MouseLikeTouchPad_SketchEN.png">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

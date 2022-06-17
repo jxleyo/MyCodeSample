@@ -15,6 +15,7 @@ public:
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_MOUSELIKETOUCHPAD_TRAYSVC_DIALOG };
+	enum { IDD = IDD_DIALOG_REG };
 #endif
 
 	protected:
@@ -28,15 +29,7 @@ protected:
 	CMenu m_Menu;
 	NOTIFYICONDATA m_nid;
 
-	// TraySvc标签页
-	CTabCtrl m_TablCtrl;
-
-	CDialogEx m_TablDialog_About;
-	CDialogEx m_TablDialog_Setting;
 	CDialogEx m_TablDialog_Reg;
-
-	INT mCurTab;
-	
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
@@ -60,6 +53,10 @@ public:
 	BOOL ShowBalloonTip(LPCWSTR szMsg, LPCWSTR szTitle, UINT uTimeOut, DWORD dwInfoFlags);
 	LRESULT OnSystemTray(WPARAM wParam, LPARAM lParam);
 
-
-	afx_msg void OnSelchangeTab(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnManual();
+	afx_msg void OnVideotutor();
+	afx_msg void OnAbout();
+	afx_msg void OnNMClickSyslinkWebsite(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnClickedRegistry();
+	afx_msg void OnNMClickSyslinkEula(NMHDR* pNMHDR, LRESULT* pResult);
 };
