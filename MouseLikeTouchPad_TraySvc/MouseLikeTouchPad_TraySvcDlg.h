@@ -28,6 +28,7 @@ protected:
 
 	CMenu m_Menu;
 	NOTIFYICONDATA m_nid;
+	
 
 	CDialogEx m_TablDialog_Reg;
 
@@ -70,5 +71,20 @@ public:
 	afx_msg void OnStnClickedStaticVer();
 	CButton m_Button_Reg;
 	CStatic m_Static_RegInfo;
+
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	CStatic m_Static_Ver;
+	void CheckRegStatus();
+	void WriteRegFlag();
+	bool IsRegistered;
+
+	void ReadSetting();
+	INT tpSetting_Sensitivity;
+	INT tpSetting_WheelStatus;
+	INT tpSetting_WheelMode;
+	INT tpSetting_OpMode;
+
+	BOOL WriteInstalledTime();
+	BOOL ReadInstalledTime(CTime* time);
 
 };
