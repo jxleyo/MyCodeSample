@@ -62,13 +62,13 @@
     <Image Include="res\Small.ico">
       <Filter>资源文件</Filter>
     </Image>
-    <Image Include="res\MouseLikeTouchPad_Sketch_SMALL_CN.bmp">
+    <Image Include="res\MouseLikeTouchPad_Sketch_SMALL_CN.jpg">
       <Filter>资源文件</Filter>
     </Image>
-    <Image Include="res\MouseLikeTouchPad_Sketch_SMALL_EN.bmp">
+    <Image Include="res\MouseLikeTouchPad_Sketch_SMALL_EN.jpg">
       <Filter>资源文件</Filter>
     </Image>
-    <Image Include="res\ICON.bmp">
+    <Image Include="res\ICON.png">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

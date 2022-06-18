@@ -59,4 +59,12 @@ public:
 	afx_msg void OnNMClickSyslinkWebsite(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnClickedRegistry();
 	afx_msg void OnNMClickSyslinkEula(NMHDR* pNMHDR, LRESULT* pResult);
+
+	void ShowImage();
+	BOOL CMouseLikeTouchPadTraySvcDlg::LoadImageFromRes(CImage* pImage, UINT nResID, LPCTSTR lpTyp);
+
+	CStatic m_Static_IconSmall;
+	CStatic m_Static_Sketch;
+	afx_msg void OnStnClickedStaticSketchimage();
+
 };

@@ -207,9 +207,9 @@
     <None Include="res\MouseLikeTouchPadTraySvc.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\ICON.bmp" />
-    <Image Include="res\MouseLikeTouchPad_Sketch_SMALL_CN.bmp" />
-    <Image Include="res\MouseLikeTouchPad_Sketch_SMALL_EN.bmp" />
+    <Image Include="res\ICON.png" />
+    <Image Include="res\MouseLikeTouchPad_Sketch_SMALL_CN.jpg" />
+    <Image Include="res\MouseLikeTouchPad_Sketch_SMALL_EN.jpg" />
     <Image Include="res\MouseLikeTouchPad_TraySvc.ico" />
     <Image Include="res\Small.ico" />
   </ItemGroup>

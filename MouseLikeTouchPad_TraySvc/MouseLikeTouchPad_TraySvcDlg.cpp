@@ -26,6 +26,8 @@ CMouseLikeTouchPadTraySvcDlg::CMouseLikeTouchPadTraySvcDlg(CWnd* pParent /*=null
 void CMouseLikeTouchPadTraySvcDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_STATIC_ICONSMALL, m_Static_IconSmall);
+	DDX_Control(pDX, IDC_STATIC_SKETCHIMAGE, m_Static_Sketch);
 }
 
 BEGIN_MESSAGE_MAP(CMouseLikeTouchPadTraySvcDlg, CDialogEx)
@@ -40,6 +42,7 @@ BEGIN_MESSAGE_MAP(CMouseLikeTouchPadTraySvcDlg, CDialogEx)
 	ON_NOTIFY(NM_CLICK, IDC_SYSLINK_WEBSITE, &CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkWebsite)
 	ON_BN_CLICKED(IDC_REGISTRY, &CMouseLikeTouchPadTraySvcDlg::OnClickedRegistry)
 	ON_NOTIFY(NM_CLICK, IDC_SYSLINK_EULA, &CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkEula)
+	ON_STN_CLICKED(IDC_STATIC_SKETCHIMAGE, &CMouseLikeTouchPadTraySvcDlg::OnStnClickedStaticSketchimage)
 END_MESSAGE_MAP()
 
 
@@ -103,6 +106,7 @@ void CMouseLikeTouchPadTraySvcDlg::OnPaint()
 	}
 	else
 	{
+		ShowImage();
 		CDialogEx::OnPaint();
 	}
 }
@@ -122,6 +126,11 @@ void CMouseLikeTouchPadTraySvcDlg::OnSysCommand(UINT nID, LPARAM lParam)
 		ShowWindow(SW_HIDE); //隐藏主窗口
 		return;
 	}
+	else if (nID == SC_MINIMIZE) //SC_MINIMIZE
+		{
+		    PostMessage(WM_SYSCOMMAND, SC_CLOSE, 0);
+			return;
+		}
 	else
 	{
 		CDialogEx::OnSysCommand(nID, lParam);
@@ -338,3 +347,119 @@ void CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkEula(NMHDR* pNMHDR, LRESULT* 
 	ShellExecute(NULL, L"open", L"https://github.com/jxleyo", NULL, NULL, SW_SHOWNORMAL);
 	*pResult = 0;
 }
+
+
+void CMouseLikeTouchPadTraySvcDlg::OnStnClickedStaticSketchimage()
+{
+	//原来，需要修改static控件的属性notify 为TRUE。
+	ShellExecute(NULL, L"open", L"https://space.bilibili.com/409976933", NULL, NULL, SW_SHOWNORMAL);
+}
+
+
+
+void CMouseLikeTouchPadTraySvcDlg::ShowImage()
+{
+	//UpdateWindow();
+
+	CImage Image;
+	if (!LoadImageFromRes(&Image, IDB_PNG_ICONSMALL, _T("PNG"))) return;
+	if (Image.IsNull())
+	{
+		MessageBox(_T("IMAGE Res Load Err"));
+		//return -1;
+	}
+
+	//CImage转为CBitmap：
+	HBITMAP hbmp = (HBITMAP)(&Image)->operator HBITMAP();
+	m_Static_IconSmall.ModifyStyle(0xf, SS_BITMAP | SS_CENTERIMAGE);////设置静态控件窗口风格为位图居中显示
+	m_Static_IconSmall.SetBitmap(hbmp);////将图片设置到Picture控件上  
+
+	CRect rect;//定义矩形类
+	int height = Image.GetHeight();
+	int width = Image.GetWidth();
+
+	m_Static_IconSmall.GetClientRect(&rect); //获得pictrue控件所在的矩形区域
+	CDC* pDc = m_Static_IconSmall.GetDC();//获得pictrue控件的Dc
+	SetStretchBltMode(pDc->m_hDC, STRETCH_HALFTONE);
+	Image.StretchBlt(pDc->m_hDC, rect, SRCCOPY);
+	ReleaseDC(pDc);//释放picture控件的Dc
+
+
+	//CBitmap bitmap;
+	//BITMAP bmpInfo;
+	//bitmap.GetBitmap(&bmpInfo);
+	//CDC dcMemory;
+	//CDC* pDC = m_Static_IconSmall.GetDC();
+	//dcMemory.CreateCompatibleDC(pDC);
+	//CBitmap* pOldBitmap = dcMemory.SelectObject(&bitmap);
+	//CRect rect;
+	//m_Static_IconSmall.GetClientRect(&rect);
+	//int nX = rect.left + (rect.Width() - bmpInfo.bmWidth) / 2;
+	//int nY = rect.top + (rect.Height() - bmpInfo.bmHeight) / 2;
+	////pDC->BitBlt(0, 0, bmpInfo.bmWidth, bmpInfo.bmHeight, &dcMemory, 0, 0, SRCCOPY);  
+	//pDC->SetStretchBltMode(COLORONCOLOR);
+	//pDC->StretchBlt(0, 0, rect.Width(), rect.Height(), &dcMemory, 0, 0, bmpInfo.bmWidth, bmpInfo.bmHeight, SRCCOPY);
+	//dcMemory.SelectObject(pOldBitmap);
+	//ReleaseDC(pDC);
+
+
+	if (!LoadImageFromRes(&Image, IDB_JPG_SKETCHCN, _T("JPG"))) return;
+	if (Image.IsNull())
+	{
+		MessageBox(_T("IMAGE Res Load Err"));
+		//return -1;
+	}
+
+	hbmp = (HBITMAP)(&Image)->operator HBITMAP();
+	m_Static_Sketch.SetBitmap(hbmp);
+
+
+	//CBitmap* bm;
+	//bm->DeleteObject();
+	//bm->Attach(hbmp);
+
+}
+
+
+BOOL CMouseLikeTouchPadTraySvcDlg::LoadImageFromRes(CImage* pImage, UINT nResID, LPCTSTR lpTyp)
+{
+	if (pImage == NULL)
+		return false;
+	pImage->Destroy();
+	// 查找资源
+	HRSRC hRsrc = ::FindResource(AfxGetResourceHandle(), MAKEINTRESOURCE(nResID), lpTyp);
+	if (hRsrc == NULL)
+		return false;
+	// 加载资源
+	HGLOBAL hImgData = ::LoadResource(AfxGetResourceHandle(), hRsrc);
+	if (hImgData == NULL)
+	{
+		::FreeResource(hImgData);
+		return false;
+	}
+	// 锁定内存中的指定资源
+	LPVOID lpVoid = ::LockResource(hImgData);
+	LPSTREAM pStream = NULL;
+	DWORD dwSize = ::SizeofResource(AfxGetResourceHandle(), hRsrc);
+	HGLOBAL hNew = ::GlobalAlloc(GHND, dwSize);
+	LPBYTE lpByte = (LPBYTE)::GlobalLock(hNew);
+	::memcpy(lpByte, lpVoid, dwSize);
+	// 解除内存中的指定资源
+	::GlobalUnlock(hNew);
+	// 从指定内存创建流对象
+	HRESULT ht = ::CreateStreamOnHGlobal(hNew, TRUE, &pStream);
+	if (ht != S_OK)
+	{
+		GlobalFree(hNew);
+	}
+	else
+	{
+		// 加载图片
+		pImage->Load(pStream);
+		GlobalFree(hNew);
+	}
+	// 释放资源
+	::FreeResource(hImgData);
+	return true;
+}
+
