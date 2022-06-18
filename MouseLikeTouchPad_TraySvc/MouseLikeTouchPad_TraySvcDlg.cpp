@@ -8,6 +8,8 @@
 #include "MouseLikeTouchPad_TraySvcDlg.h"
 #include "afxdialogex.h"
 
+#include "CRegDialog.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -28,6 +30,8 @@ void CMouseLikeTouchPadTraySvcDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_STATIC_ICONSMALL, m_Static_IconSmall);
 	DDX_Control(pDX, IDC_STATIC_SKETCHIMAGE, m_Static_Sketch);
+	DDX_Control(pDX, IDC_REGISTRY, m_Button_Reg);
+	DDX_Control(pDX, IDC_STATIC_REGINFO, m_Static_RegInfo);
 }
 
 BEGIN_MESSAGE_MAP(CMouseLikeTouchPadTraySvcDlg, CDialogEx)
@@ -37,12 +41,13 @@ BEGIN_MESSAGE_MAP(CMouseLikeTouchPadTraySvcDlg, CDialogEx)
 	ON_COMMAND(IDM_EXIT, &CMouseLikeTouchPadTraySvcDlg::OnExit)
 	ON_MESSAGE(WM_SYSTEMTRAY, OnSystemTray)
 	ON_COMMAND(ID_MANUAL, &CMouseLikeTouchPadTraySvcDlg::OnManual)
-	ON_COMMAND(ID_VIDEOTUTOR, &CMouseLikeTouchPadTraySvcDlg::OnVideotutor)
+	ON_COMMAND(ID_VIDEOTUTOR, &CMouseLikeTouchPadTraySvcDlg::OnVideoTutor)
 	ON_COMMAND(ID_ABOUT, &CMouseLikeTouchPadTraySvcDlg::OnAbout)
 	ON_NOTIFY(NM_CLICK, IDC_SYSLINK_WEBSITE, &CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkWebsite)
 	ON_BN_CLICKED(IDC_REGISTRY, &CMouseLikeTouchPadTraySvcDlg::OnClickedRegistry)
 	ON_NOTIFY(NM_CLICK, IDC_SYSLINK_EULA, &CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkEula)
 	ON_STN_CLICKED(IDC_STATIC_SKETCHIMAGE, &CMouseLikeTouchPadTraySvcDlg::OnStnClickedStaticSketchimage)
+	ON_STN_CLICKED(IDC_STATIC_VER, &CMouseLikeTouchPadTraySvcDlg::OnStnClickedStaticVer)
 END_MESSAGE_MAP()
 
 
@@ -66,6 +71,10 @@ BOOL CMouseLikeTouchPadTraySvcDlg::OnInitDialog()
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
+
+	//
+	init();
+
 
 	CString sCmdLine = AfxGetApp()->m_lpCmdLine;//只包含参数
 	if (sCmdLine == L"ShowDialog") {//调用参数 //wcscmp(sCmdLine, L"ShowDialog") == 0//sCmdLine == L"ShowDialog"//sCmdLine.Compare(L"ShowDialog")==0
@@ -308,15 +317,34 @@ LRESULT CMouseLikeTouchPadTraySvcDlg::OnSystemTray(WPARAM wParam, LPARAM lParam)
 //	//SendMessage(hWnd, message, wParam, lParam);
 //}
 
+void CMouseLikeTouchPadTraySvcDlg::init()
+{
+	BOOL IsRegistered = FALSE;
+
+	if (IsRegistered) {
+		m_Button_Reg.EnableWindow(FALSE);//注册变灰
+		m_Static_RegInfo.SetWindowText(L"软件已注册(永久使用权)");
+	}
+	else {
+		m_Button_Reg.EnableWindow(TRUE);
+		m_Static_RegInfo.SetWindowText(L"软件未注册(30天使用期)");
+	}
+
+}
+
+void CMouseLikeTouchPadTraySvcDlg::OnStnClickedStaticVer()
+{
+	ShellExecute(NULL, L"open", L"https://github.com/jxleyo/MouseLikeTouchPad_I2C/releases", NULL, NULL, SW_SHOWNORMAL);
+}
 
 
 void CMouseLikeTouchPadTraySvcDlg::OnManual()
 {
-	ShellExecute(NULL, L"open", L"https://github.com/jxleyo", NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, L"open", L"Manual.doc", NULL, NULL, SW_SHOWNORMAL);
 }
 
 
-void CMouseLikeTouchPadTraySvcDlg::OnVideotutor()
+void CMouseLikeTouchPadTraySvcDlg::OnVideoTutor()
 {
 	ShellExecute(NULL, L"open", L"https://space.bilibili.com/409976933", NULL, NULL, SW_SHOWNORMAL);
 	//ShellExecute(NULL, L"open", L"https://www.youtube.com/channel/UC3hQyN-2ZL_q7pCKoASAblQ", NULL, NULL, SW_SHOWNORMAL);
@@ -338,13 +366,19 @@ void CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkWebsite(NMHDR* pNMHDR, LRESUL
 
 void CMouseLikeTouchPadTraySvcDlg::OnClickedRegistry()
 {
-	ShellExecute(NULL, L"open", L"https://github.com/jxleyo", NULL, NULL, SW_SHOWNORMAL);
+	//ShellExecute(NULL, L"open", L"https://github.com/jxleyo/MouseLikeTouchPad_I2C/releases", NULL, NULL, SW_SHOWNORMAL);
+
+	CRegDialog dlgReg;
+	dlgReg.DoModal();
+	
+	/*dlgReg.Create(IDD_DIALOG_REG, this);
+	dlgReg.ShowWindow(SW_SHOW);*/
 }
 
 
 void CMouseLikeTouchPadTraySvcDlg::OnNMClickSyslinkEula(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	ShellExecute(NULL, L"open", L"https://github.com/jxleyo", NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, L"open", L"EULA.rtf", NULL, NULL, SW_SHOWNORMAL);
 	*pResult = 0;
 }
 
@@ -462,4 +496,5 @@ BOOL CMouseLikeTouchPadTraySvcDlg::LoadImageFromRes(CImage* pImage, UINT nResID,
 	::FreeResource(hImgData);
 	return true;
 }
+
 

@@ -183,6 +183,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CRegDialog.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MouseLikeTouchPad_TraySvc.h" />
     <ClInclude Include="MouseLikeTouchPad_TraySvcDlg.h" />
@@ -191,6 +192,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CRegDialog.cpp" />
     <ClCompile Include="MouseLikeTouchPad_TraySvc.cpp" />
     <ClCompile Include="MouseLikeTouchPad_TraySvcDlg.cpp" />
     <ClCompile Include="pch.cpp">

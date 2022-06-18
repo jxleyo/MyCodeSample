@@ -54,17 +54,21 @@ public:
 	LRESULT OnSystemTray(WPARAM wParam, LPARAM lParam);
 
 	afx_msg void OnManual();
-	afx_msg void OnVideotutor();
+	afx_msg void OnVideoTutor();
 	afx_msg void OnAbout();
 	afx_msg void OnNMClickSyslinkWebsite(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnClickedRegistry();
 	afx_msg void OnNMClickSyslinkEula(NMHDR* pNMHDR, LRESULT* pResult);
 
+	void init();
 	void ShowImage();
 	BOOL CMouseLikeTouchPadTraySvcDlg::LoadImageFromRes(CImage* pImage, UINT nResID, LPCTSTR lpTyp);
 
 	CStatic m_Static_IconSmall;
 	CStatic m_Static_Sketch;
 	afx_msg void OnStnClickedStaticSketchimage();
+	afx_msg void OnStnClickedStaticVer();
+	CButton m_Button_Reg;
+	CStatic m_Static_RegInfo;
 
 };
