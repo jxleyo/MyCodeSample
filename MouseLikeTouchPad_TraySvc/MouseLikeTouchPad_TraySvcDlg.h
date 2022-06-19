@@ -78,11 +78,6 @@ public:
 	void WriteRegFlag();
 	bool IsRegistered;
 
-	void ReadSetting();
-	INT tpSetting_Sensitivity;
-	INT tpSetting_WheelStatus;
-	INT tpSetting_WheelMode;
-	INT tpSetting_OpMode;
 
 	BOOL WriteInstalledTime();
 	BOOL ReadInstalledTime(CTime* time);

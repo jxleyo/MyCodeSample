@@ -61,7 +61,9 @@ BOOL CMouseLikeTouchPadTraySvcDlg::OnInitDialog()
 
 	AddTrayIcon();//添加托盘图标
 
-	ShowBalloonTip(L"MouseLikeTouchPadTray_Svc", L"仿鼠标触摸板服务就绪", 1500, NIIF_INFO);
+	//ShowBalloonTip(L"MouseLikeTouchPadTray_Svc", L"仿鼠标触摸板服务就绪", 1500, NIIF_INFO);
+	//SetTimer(2, 3000, NULL);//计时器2，1000ms触发一次OnTimer()函数
+
 
 	// 加载托盘菜单资源
 	m_Menu.LoadMenu(IDR_TRAYMENU);
@@ -79,10 +81,6 @@ BOOL CMouseLikeTouchPadTraySvcDlg::OnInitDialog()
 	
 	init();
 
-	CheckRegStatus();//检测软件注册状态
-
-	//AutoCheckSetting();
-	SetTimer(2, 3000, NULL);//计时器2，1000ms触发一次OnTimer()函数
 
 	CString sCmdLine = AfxGetApp()->m_lpCmdLine;//只包含参数
 	if (sCmdLine == L"ShowDialog") {//调用参数 //wcscmp(sCmdLine, L"ShowDialog") == 0//sCmdLine == L"ShowDialog"//sCmdLine.Compare(L"ShowDialog")==0
@@ -95,6 +93,11 @@ BOOL CMouseLikeTouchPadTraySvcDlg::OnInitDialog()
 		PostMessage(WM_SYSCOMMAND, SC_CLOSE, 0);
 	}
 	
+	WriteRegFlag();
+	//StartMonitorRegStatus();
+	//CheckRegStatus();//检测软件注册状态
+
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -280,20 +283,9 @@ LRESULT CMouseLikeTouchPadTraySvcDlg::OnSystemTray(WPARAM wParam, LPARAM lParam)
 			PopMenu.AppendMenu(MF_STRING, IDM_EXIT, L"关闭");//PopMenu.AppendMenu(MF_STRING, WM_DESTROY, L"关闭");//
 			//PopMenu.EnableMenuItem(IDM_EXIT, MFS_GRAYED);//使某项菜单变灰
 
-			PopMenu.AppendMenu(MF_STRING, 0, L"当前设置");
-			PopMenu.AppendMenu(MF_SEPARATOR, 0, L"");
+			//PopMenu.AppendMenu(MF_STRING, 0, L"当前设置");
+			//PopMenu.AppendMenu(MF_SEPARATOR, 0, L"");
 
-			PopMenu.AppendMenu(MF_STRING, ID_OPMETHOD, L"操作方式（仿鼠标式触摸板）");
-			PopMenu.EnableMenuItem(ID_OPMETHOD, MFS_GRAYED);//使某项菜单变灰
-
-			PopMenu.AppendMenu(MF_STRING, ID_WHEELSTATUS, L"滚轮启用（开）");
-			PopMenu.EnableMenuItem(ID_WHEELSTATUS, MFS_GRAYED);//使某项菜单变灰
-
-			PopMenu.AppendMenu(MF_STRING, ID_WHEELMODE, L"滚轮方式（模拟鼠标）");
-			PopMenu.EnableMenuItem(ID_WHEELMODE, MFS_GRAYED);//使某项菜单变灰
-
-			PopMenu.AppendMenu(MF_STRING, ID_SENSITIVITY, L"灵敏度（高）");
-			PopMenu.EnableMenuItem(ID_SENSITIVITY, MFS_GRAYED);//使某项菜单变灰
 
 			PopMenu.AppendMenu(MF_SEPARATOR, 0, L"");//分割线
 
@@ -332,11 +324,6 @@ LRESULT CMouseLikeTouchPadTraySvcDlg::OnSystemTray(WPARAM wParam, LPARAM lParam)
 void CMouseLikeTouchPadTraySvcDlg::init()
 {
 	IsRegistered = FALSE;
-	tpSetting_Sensitivity = 0;
-	tpSetting_WheelStatus = 0;
-	tpSetting_WheelMode = 0;
-	tpSetting_OpMode = 0;
-
 }
 
 void CMouseLikeTouchPadTraySvcDlg::OnStnClickedStaticVer()
@@ -532,19 +519,15 @@ void CMouseLikeTouchPadTraySvcDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CMouseLikeTouchPadTraySvcDlg::CheckRegStatus()
 {
-	//key.DeleteValue
-
-	TCHAR szPath[] = L"SoftWare\\jxleyo.HRP\\MouseLikeTouchPad";
-	DWORD Value = 0;
-	IsRegistered = FALSE;
-	CRegKey key;
-	if (key.Open(HKEY_LOCAL_MACHINE, szPath)) {
-		if (key.QueryDWORDValue(L"RegisteredFlag", Value) == ERROR_SUCCESS) {
-			IsRegistered = Value;
-		}
-	}
-	key.Close();
+	TCHAR szPath[] = L"LogFile\\Registry.dat";
+	DWORD Value = 1;
+	//读取文件
 	
+	CString str;
+	str.Format(L"%d", IsRegistered);
+	//AfxMessageBox(str, MB_OK, MB_ICONSTOP);
+
+
 	if (IsRegistered) {
 		m_Button_Reg.EnableWindow(FALSE);//注册变灰
 		m_Static_RegInfo.SetWindowText(L"软件已注册(永久使用权)");
@@ -558,32 +541,20 @@ void CMouseLikeTouchPadTraySvcDlg::CheckRegStatus()
 
 void CMouseLikeTouchPadTraySvcDlg::WriteRegFlag()
 {
-	TCHAR szPath[] = L"SoftWare\\jxleyo.HRP\\MouseLikeTouchPad";
+	TCHAR szPath[] = L"LogFile\\Registry.dat";
 	DWORD Value = 1;
-	CRegKey key;
-	if (key.Create(HKEY_LOCAL_MACHINE, szPath)) {
-		if (key.SetDWORDValue(L"RegisteredFlag", Value) == ERROR_SUCCESS) {
-			IsRegistered = TRUE;
-		}
-	}
-	key.Close();
+	//写入文件
 }
 
 BOOL CMouseLikeTouchPadTraySvcDlg::WriteInstalledTime()
 {
 	BOOL bSuccess = FALSE;
-	TCHAR szPath[] = L"SoftWare\\jxleyo.HRP\\MouseLikeTouchPad";
+	TCHAR szPath[] = L"LogFile\\Installed.dat";
 	CTime time = CTime::GetCurrentTime();//获取当前时间
 	CString str;
 	str.Format(_T("%d-%2d-%2d %2d:%2d:%2d"), time.GetYear(), time.GetMonth(), time.GetDay(), time.GetHour(), time.GetMinute(), time.GetSecond());
 
-	CRegKey key;
-	if (key.Create(HKEY_LOCAL_MACHINE, szPath)) {
-		if (key.SetStringValue(L"InstalledTime", str) == ERROR_SUCCESS) {
-			bSuccess = TRUE;
-		}
-	}
-	key.Close();
+	//写入文件
 
 	return bSuccess;
 }
@@ -591,64 +562,10 @@ BOOL CMouseLikeTouchPadTraySvcDlg::WriteInstalledTime()
 BOOL CMouseLikeTouchPadTraySvcDlg::ReadInstalledTime(CTime* time)
 {
 	BOOL bSuccess = FALSE;
-	TCHAR szPath[] = L"SoftWare\\jxleyo.HRP\\MouseLikeTouchPad";
+	TCHAR szPath[] = L"LogFile\\Installed.dat";
 
-	CString strTime;
-	TCHAR str[_MAX_PATH];
-	DWORD len = _MAX_PATH;
-
-	CRegKey key;
-	if (key.Open(HKEY_LOCAL_MACHINE, szPath)) {
-
-		if (key.QueryStringValue(L"InstalledTime", str, &len) == ERROR_SUCCESS)
-		{
-			strTime = str;
-			COleVariant vtime(strTime);
-			vtime.ChangeType(VT_DATE);
-			COleDateTime cOleTime = vtime;
-			SYSTEMTIME systime;
-			VariantTimeToSystemTime(cOleTime, &systime);
-			CTime cTimeFromDB(systime);
-			//
-			bSuccess = true;
-		}
-	}
-	key.Close();
+	//读取文件
 
 	return bSuccess;
 }
 
-
-void CMouseLikeTouchPadTraySvcDlg::ReadSetting()
-{
-	TCHAR szPath[] = L"SoftWare\\jxleyo.HRP\\MouseLikeTouchPad";
-	DWORD Value = -1;
-	CRegKey key;
-	if (key.Open(HKEY_LOCAL_MACHINE, szPath)) {
-		if (key.QueryDWORDValue(L"Sensitivity", Value) == ERROR_SUCCESS) {
-			if (Value >= 0) {
-				tpSetting_Sensitivity = Value;
-			}		
-		}
-
-		if (key.QueryDWORDValue(L"WheelStatus", Value) == ERROR_SUCCESS) {
-			if (Value >= 0) {
-				tpSetting_WheelStatus = Value;
-			}	
-		}
-
-		if (key.QueryDWORDValue(L"WheelMode", Value) == ERROR_SUCCESS) {
-			if (Value >= 0) {
-				tpSetting_WheelMode = Value;
-			}	
-		}
-
-		if (key.QueryDWORDValue(L"OpMode", Value) == ERROR_SUCCESS) {
-			if (Value >= 0) {
-				tpSetting_OpMode = Value;
-			}
-
-		}
-	}
-	key.Close();
-}

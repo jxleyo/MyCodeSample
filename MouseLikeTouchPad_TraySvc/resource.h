@@ -33,10 +33,6 @@
 #define IDC_STATIC_REGMETHODINFO        1024
 #define IDC_SYSLINK_EULA                1025
 #define IDM_EXIT                        32776
-#define ID_OPMETHOD                     32778
-#define ID_WHEELSTATUS                  32779
-#define ID_WHEELMODE                    32780
-#define ID_SENSITIVITY                  32781
 #define ID_MANUAL                       32784
 #define ID_VIDEOTUTOR                   32786
 #define ID_ABOUT                        32787
@@ -46,7 +42,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        140
-#define _APS_NEXT_COMMAND_VALUE         32771
+#define _APS_NEXT_COMMAND_VALUE         32772
 #define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
