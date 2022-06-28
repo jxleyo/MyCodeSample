@@ -47,8 +47,8 @@ pnputil /enum-devices /class {745a17a0-74d3-11d0-b6fe-00a0c90f57da}  /ids /relat
 echo enum-devices枚举设备ok
 echo.
 
-::检查是否找到微软ACPI\MSFT0001标准硬件ID的touchpad触控板设备ACPI\VEN_MSFT&DEV_0001
-find/i "ACPI\MSFT0001" LogFIle\hid_dev.txt || (
+::检查是否找到微软ACPI\MSFT0001标准硬件ID的touchpad触控板设备ACPI\VEN_MSFT&DEV_0001，使用HID\MSFT0001关键字因为I2C设备离线时发现不了
+find/i "HID\MSFT0001" LogFIle\hid_dev.txt || (
      echo 未发现触控板设备。
      echo No TouchPad device found. 
      echo.
