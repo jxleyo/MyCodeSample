@@ -1428,7 +1428,7 @@ int __fastcall sub_14000310C(__int64 a1, __int64 a2, unsigned int a3, __int64 a4
       if ( v20 )
       {
         *(_QWORD *)(v12 + 80) = *(__int64 *)((char *)v27.m128i_i64 + 4);
-        *(_DWORD *)(v12 + 88) = v27.m128i_i32[3] * v27.m128i_i32[3];
+        *(_DWORD *)(v12 + 88) = v27.m128i_i32[3] * v27.m128i_i32[3];//ResetNotificationQueue
         *(_DWORD *)(v12 + 92) = v19 * v19;
       }
       v21 = v27.m128i_i32[0];
@@ -1732,7 +1732,7 @@ __int64 __fastcall sub_140003D28(__int64 a1, __int64 a2, __int64 a3)
                                                      a2)// Request_a2
                   + 184)  //pHidPacket = (PHID_XFER_PACKET)pIrp->AssociatedIrp.SystemBuffer;//??//pHidPacket= pIrp->MdlAddress??
                                                         + 48i64);//pIrp->reportId
-
+  //pDeviceContext->ReportBuffer = (PCHAR)((PHID_XFER_PACKET)(WdfRequestWdmGetIrp(Request_a2)->UserBuffer))->reportBuffer;
         
     v7 = sub_140003ED0((_QWORD *)a1, a3);//status_v7=PTPFilterSendReadRequest(pDeviceContext_a1, CompletionRoutine_a3);
     v6 = v7;
