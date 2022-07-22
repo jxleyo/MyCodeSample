@@ -1,244 +1,245 @@
 echo off
-echo å¼¹å‡ºçª—å£â€œå…è®¸æ­¤åº”ç”¨å¯¹ä½ çš„è®¾å¤‡è¿›è¡Œæ›´æ”¹â€œ è¯·é€‰æ‹©â€œæ˜¯â€ä»¥è·å–ç®¡ç†å‘˜æƒé™æ¥è¿è¡Œæœ¬å®‰è£…è„šæœ¬
+echo µ¯³ö´°¿Ú¡°ÔÊĞí´ËÓ¦ÓÃ¶ÔÄãµÄÉè±¸½øĞĞ¸ü¸Ä¡° ÇëÑ¡Ôñ¡°ÊÇ¡±ÒÔ»ñÈ¡¹ÜÀíÔ±È¨ÏŞÀ´ÔËĞĞ±¾°²×°½Å±¾
 echo Pop up window "allow this app to make changes to your device" please select "yes" to obtain administrator rights to run this installation script
 echo.
 
-::è·å–ç®¡ç†å‘˜æƒé™
+::»ñÈ¡¹ÜÀíÔ±È¨ÏŞ
 %1 mshta vbscript:CreateObject("Shell.Application").ShellExecute("cmd.exe","/c %~s0 ::","","runas",1)(window.close)&&exit
-::ä¿æŒå½“å‰ç›®å½•ä¸‹è¿è¡Œ
+::±£³Öµ±Ç°Ä¿Â¼ÏÂÔËĞĞ
 cd /d "%~dp0"
 
 echo off
-echo å¼€å§‹è¿è¡Œå®‰è£…è„šæœ¬ï¼Œå®‰è£…é©±åŠ¨å‰è¯·ç¡®ä¿å…¶ä»–ç¨‹åºå·²å…³é—­æˆ–æ–‡æ¡£å·²ä¿å­˜
+echo ¿ªÊ¼ÔËĞĞ°²×°½Å±¾£¬°²×°Çı¶¯Ç°ÇëÈ·±£ÆäËû³ÌĞòÒÑ¹Ø±Õ»òÎÄµµÒÑ±£´æ
 echo Start running the installation script. Before installing the driver, make sure that other programs have been closed or the document has been saved.
 echo.
 
-echo å¼€å§‹æ£€æŸ¥å®‰è£…æ–‡ä»¶
-echo Start checking installation files
-echo.
 
-if exist MouseLikeTouchPad_I2C.inf (
-    echo MouseLikeTouchPad_I2C.infæ–‡ä»¶æ­£å¸¸
-) else (
-    echo MouseLikeTouchPad_I2C.infæ–‡ä»¶ä¸¢å¤±ï¼Œè¯·æ£€æŸ¥æˆ–è€…é‡æ–°ä¸‹è½½é©±åŠ¨å®‰è£…åŒ…
-    echo MouseLikeTouchPad_I2C.inf File Lostï¼ŒPlease check or download the driver installation package again.
-    pause
-    exit
-)
-
-if exist MouseLikeTouchPad_I2C.cat (
-    echo MouseLikeTouchPad_I2C.catæ–‡ä»¶æ­£å¸¸
-) else (
-    echo MouseLikeTouchPad_I2C.catæ–‡ä»¶ä¸¢å¤±ï¼Œè¯·æ£€æŸ¥æˆ–è€…é‡æ–°ä¸‹è½½é©±åŠ¨å®‰è£…åŒ…
-    echo MouseLikeTouchPad_I2C.cat File Lostï¼ŒPlease check or download the driver installation package again.
-    pause
-    exit
-)
-
-if exist MouseLikeTouchPad_I2C.sys (
-    echo MouseLikeTouchPad_I2C.sysæ–‡ä»¶æ­£å¸¸
-) else (
-    echo MouseLikeTouchPad_I2C.sysæ–‡ä»¶ä¸¢å¤±ï¼Œè¯·æ£€æŸ¥æˆ–è€…é‡æ–°ä¸‹è½½é©±åŠ¨å®‰è£…åŒ…
-    echo MouseLikeTouchPad_I2C.sys File Lostï¼ŒPlease check or download the driver installation package again.
-    pause
-    exit
-)
-echo.
-
-
-::å¼€å¯å»¶è¿Ÿå˜é‡æ‰©å±•
+::¿ªÆôÑÓ³Ù±äÁ¿À©Õ¹
 setlocal enabledelayedexpansion
 echo.
 
- ::åˆ é™¤å†å²æ®‹ç•™æ–‡ä»¶
-del/f /q hid_dev.txt
-del/f /q i2c_dev.txt
-del/f /q dev*.tmp
-del/f /q drv*.tmp
-echo.
-
-::åˆ é™¤å†å²è®°å½•æ–‡ä»¶
-if exist Return.txt (
-    del/f /q Return.txt
+ ::É¾³ıÀúÊ·²ĞÁôÎÄ¼ş
+ if exist LogFIle\hid_dev.txt (
+    del/f /q LogFIle\hid_dev.txt
 )
 echo.
 
-::å†™å…¥å¼€å§‹è¿è¡Œbatçš„ä¿¡å·
-echo StartBAT>Return.txt
+::É¾³ıÀúÊ·¼ÇÂ¼ÎÄ¼ş
+if exist LogFIle\Return_InstDrv.txt (
+    del/f /q LogFIle\Return_InstDrv.txt
+)
+if exist LogFIle\InstDrvSucceeded.txt (
+    del/f /q LogFIle\InstDrvSucceeded.txt
+)
 echo.
-	
-echo Check Windows Version..
-ver>winver.txt
-echo.
 
-find "10.0." winver.txt || (
-	 echo å½“å‰ç³»ç»Ÿä¸æ˜¯windows10/11ï¼Œæ— æ³•å®‰è£…ï¼
- 	echo Current OS is not Windows10/11ï¼ŒCan't Install the Driverï¼
-	 echo.
- 	del/f /q winver.txt
- 	echo.
-	set var=VER_OS_ERR
-	echo !var!>>Return.txt 
- 	exit
-) 
-
- ::Win10 Build 19041.208(v2004)æ­£å¼ç‰ˆ //10.0.a.bæ ¼å¼ï¼Œç›´æ¥åˆ¤æ–­a>=19041å³å¯ï¼Œæ³¨æ„delimsä¼šæŠŠå›è½¦æ¢è¡Œç¬¦è‡ªåŠ¨ç®—ä½œåˆ†éš”ç¬¦æ‰€ä»¥å¤šè¡Œæƒ…å†µä¸‹tokensçš„æ•°å€¼è®¾ç½®éœ€è¦è®¡ç®—æ¢è¡Œæƒ…å†µä¸‹çš„åˆ—å·
- for /f "delims=[.] tokens=4" %%i in (winver.txt) do (
-   set "winver=%%i"
- )
-
-::æ•°å€¼å­—ç¬¦ä¸²çš„å€¼å¤§å°æ¯”è¾ƒï¼Œæ³¨æ„éœ€è¦å¼•å·ï¼Œå¹¶ä¸”å®é™…ä¸Šæ•°å­—å­—ç¬¦ä¸²ä½æ•°ä¸åŒæ—¶å¤§å°æ¯”è¾ƒä¸æ˜¯å‡†ç¡®çš„ï¼Œæ¯”å¦‚2041å’Œ19041ç›¸æ¯”è¾ƒä¼šæ˜¯é”™è¯¯ç»“æœ
-if ("%winver%" LSS "19041") (
-     echo å½“å‰windowsç³»ç»Ÿç‰ˆæœ¬å¤ªä½ï¼Œè¯·å‡çº§åå†è¯•
-	echo The current version of windows system is too low. Please upgrade and try again.
-	echo.
-	del/f /q winver.txt
-	echo.
-	set var=VER_LOW_ERR
-	echo !var!>>Return.txt 
-	exit
+::¼ì²âÄ¿Â¼
+if not exist LogFIle (
+    md LogFIle
+    echo.
 )
 
-echo å½“å‰windowsç³»ç»Ÿç‰ˆæœ¬åŒ¹é…ok
-echo Current Windows system version matches OK.
-echo.
-
-del/f /q winver.txt
-echo.
-set var=VER_OK
-echo !var!>>Return.txt 
-echo.
-
-echo å¼€å§‹æŸ¥æ‰¾æ‰€æœ‰çš„HIDè®¾å¤‡device
 pnputil /scan-devices
-echo scan-devicesæ‰«æè®¾å¤‡ok
-echo.
-pnputil /enum-devices /connected /class {745a17a0-74d3-11d0-b6fe-00a0c90f57da}  /ids /relations >hid_dev.txt
-echo enum-devicesæšä¸¾è®¾å¤‡ok
+echo scan-devicesÉ¨ÃèÉè±¸ok
 echo.
 
-::æ£€æŸ¥æ˜¯å¦æ‰¾åˆ°touchpadè§¦æ§æ¿è®¾å¤‡device
-find/i "HID_DEVICE_UP:000D_U:0005" hid_dev.txt || (
-     echo æœªå‘ç°è§¦æ§æ¿è®¾å¤‡ï¼ŒæŒ‰ä»»æ„é”®é€€å‡ºï¼Œè¯·å®‰è£…åŸå‚é©±åŠ¨åå†æ¬¡å°è¯•
-     echo No TouchPad device found. Press any key to exit. Please install the original driver and try again.
+echo ¿ªÊ¼²éÕÒËùÓĞµÄHIDÉè±¸device£¬×¢Òâ¼Ó/connected±íÊ¾ÒÑ¾­Á¬½Ó
+pnputil /enum-devices /connected /class {745a17a0-74d3-11d0-b6fe-00a0c90f57da}  /ids /relations >LogFIle\hid_dev.txt
+echo enum-devicesÃ¶¾ÙÉè±¸ok
+echo.
+
+::±ê×¼»¯Ó²¼ş°²×°Ä£Ê½
+::¼ì²éÊÇ·ñÕÒµ½Î¢ÈíACPI\MSFT0001±ê×¼Ó²¼şIDµÄtouchpad´¥¿Ø°åÉè±¸ACPI\VEN_MSFT&DEV_0001£¬
+find/i "ACPI\MSFT0001" LogFIle\hid_dev.txt || (
+     echo Î´·¢ÏÖMSFT0001´¥¿Ø°åÉè±¸¡£
+     echo No MSFT0001 TouchPad device found. 
      echo.
-     set var=TP_NODEV_ERR
-     echo !var!>>Return.txt
+     rd /S /Q Driver
+     ren Driver_Compatible Driver
+     echo.
+     goto DevCompatible
+)
+
+echo ÕÒµ½touchpad´¥¿Ø°åÉè±¸
+echo TouchPad I2C device found.
+echo ACPI\MSFT0001 >LogFIle\TouchPad_I2C_FOUND.txt
+echo.
+
+ ::°²×°Çı¶¯£¬Ìí¼Óµ½Çı¶¯¿âÖĞ²¢ÇÒ°²×°
+  pnputil /add-driver Driver\MouseLikeTouchPad_I2C.inf /install
+  echo add-driver°²×°Çı¶¯ok
+  echo.
+  
+
+ :É¨Ãèi2c´¥¿Ø°åÉè±¸
+pnputil /scan-devices
+echo scan-devicesÉ¨ÃèÉè±¸ok
+echo.
+
+::ÑéÖ¤ÊÇ·ñ°²×°³É¹¦£¬×¢Òâ¼Ó/connected±íÊ¾ÒÑ¾­Á¬½Ó
+pnputil /enum-devices /connected /class {745a17a0-74d3-11d0-b6fe-00a0c90f57da}  /ids /relations >LogFIle\hid_dev.txt
+echo enum-devicesÃ¶¾ÙÉè±¸ok
+echo.
+ 
+find/i "MouseLikeTouchPad_I2C" LogFIle\hid_dev.txt || (
+     echo °²×°Çı¶¯Ê§°Ü£¬ÇëÉÔºóÔÙÊÔ
+     echo Failed to install the driver. Please  try again later.
+     echo.
+     echo INSTDRV_FAILED >LogFIle\Return_InstDrv.txt
+     del/f /q LogFIle\hid_dev.txt
      exit
 )
 
-echo æ‰¾åˆ°touchpadè§¦æ§æ¿è®¾å¤‡
+del/f /q LogFIle\hid_dev.txt
+echo.
+
+echo °²×°Çı¶¯³É¹¦
+echo Driver installed successfully.
+echo.
+echo INSTDRV_OK >LogFIle\Return_InstDrv.txt
+echo INSTDRV_OK >LogFIle\InstDrvSucceeded.txt
+echo.
+exit
+
+
+::¼æÈİÓ²¼ş°²×°Ä£Ê½
+:DevCompatible
+
+::¼ì²éÊÇ·ñÕÒµ½touchpad´¥¿Ø°åÉè±¸device
+find/i "HID_DEVICE_UP:000D_U:0005" LogFIle\hid_dev.txt || (
+     echo Î´·¢ÏÖ´¥¿Ø°åÉè±¸£¬Çë°²×°Ô­³§Çı¶¯ºóÔÙ´Î³¢ÊÔ
+     echo No TouchPad device found. Please install the original driver and try again
+     echo.
+     echo INSTDRV_FAILED >LogFIle\Return_InstDrv.txt
+     exit
+)
+
+echo ÕÒµ½touchpad´¥¿Ø°åÉè±¸
 echo TouchPad device found.
 echo.
 
-echo å¼€å§‹æŸ¥æ‰¾touchpadè§¦æ§æ¿å¯¹åº”çš„çˆ¶çº§I2Cè®¾å¤‡å®ä¾‹InstanceID
+
+echo ¿ªÊ¼²éÕÒtouchpad´¥¿Ø°å¶ÔÓ¦µÄ¸¸¼¶I2CÉè±¸ÊµÀıInstanceID
 echo.
  
- ::æ›¿æ¢å›è½¦æ¢è¡Œç¬¦ä¸ºé€—å·æ–¹ä¾¿åˆ†å‰²ï¼Œæ³¨æ„åé¢NULåé¢ä¸ºè¿½åŠ >>å†™å…¥
-for /f "delims=" %%i in (hid_dev.txt) do (
-   set /p="%%i,"<nul>>dev0.tmp
+ ::Ìæ»»»Ø³µ»»ĞĞ·ûÎª¶ººÅ·½±ã·Ö¸î£¬×¢ÒâºóÃæNULºóÃæÎª×·¼Ó>>Ğ´Èë
+for /f "delims=" %%i in (LogFIle\hid_dev.txt) do (
+   set /p="%%i,"<nul>>LogFIle\dev0.tmp
  )
 
-::æ›¿æ¢HID_DEVICE_UP:000D_U:0005ä¸º#æ–¹ä¾¿åˆ†å‰²ï¼Œæ³¨æ„set /péœ€è¦åŠ é€—å·
-for /f "delims=, tokens=*" %%i in (dev0.tmp) do (
+::Ìæ»»HID_DEVICE_UP:000D_U:0005Îª#·½±ã·Ö¸î£¬×¢Òâset /pĞèÒª¼Ó¶ººÅ
+for /f "delims=, tokens=*" %%i in (LogFIle\dev0.tmp) do (
     set "str=%%i"
     set "str=!str:HID_DEVICE_UP:000D_U:0005=#!"
-    set /p="!str!,"<nul>>dev1.tmp
+    set /p="!str!,"<nul>>LogFIle\dev1.tmp
 )
 
-  ::è·å–#åˆ†éš”ç¬¦åé¢çš„æ–‡æœ¬ï¼Œæ³¨æ„set /péœ€è¦åŠ é€—å·
- for /f "delims=# tokens=2,*" %%i in (dev1.tmp) do (
-   set /p="%%i,"<nul>>dev2.tmp
+  ::»ñÈ¡#·Ö¸ô·ûºóÃæµÄÎÄ±¾£¬×¢Òâset /pĞèÒª¼Ó¶ººÅ
+ for /f "delims=# tokens=2,*" %%i in (LogFIle\dev1.tmp) do (
+   set /p="%%i,"<nul>>LogFIle\dev2.tmp
  )
 
-  ::è·å–:åˆ†éš”ç¬¦åé¢çš„æ–‡æœ¬ï¼Œæ³¨æ„set /péœ€è¦åŠ é€—å·
- for /f "delims=: tokens=2" %%i in (dev2.tmp) do (
-   set /p="%%i,"<nul>>dev3.tmp
+  ::»ñÈ¡:·Ö¸ô·ûºóÃæµÄÎÄ±¾£¬×¢Òâset /pĞèÒª¼Ó¶ººÅ
+ for /f "delims=: tokens=2" %%i in (LogFIle\dev2.tmp) do (
+   set /p="%%i,"<nul>>LogFIle\dev3.tmp
  )
 
-   ::è·å–,åˆ†éš”ç¬¦å‰é¢çš„æ–‡æœ¬
- for /f "delims=, tokens=1" %%i in (dev3.tmp) do (
-  set /p="%%i"<nul>>dev4.tmp
+   ::»ñÈ¡,·Ö¸ô·ûÇ°ÃæµÄÎÄ±¾
+ for /f "delims=, tokens=1" %%i in (LogFIle\dev3.tmp) do (
+  set /p="%%i"<nul>>LogFIle\dev4.tmp
  )
 
-    ::åˆ é™¤ç©ºæ ¼
- for /f "delims= " %%i in (dev4.tmp) do (
+    ::É¾³ı¿Õ¸ñ
+ for /f "delims= " %%i in (LogFIle\dev4.tmp) do (
    set "str=%%i"
-   echo !str!>i2c_dev_InstanceID.txt
+   echo !str!>LogFIle\TouchPad_I2C_devInstanceID.txt
  )
 echo.
 
-del/f /q hid_dev.txt
-del/f /q dev*.tmp
+del/f /q LogFIle\hid_dev.txt
+del/f /q LogFIle\dev*.tmp
 echo.
  
 
- ::éªŒè¯InstanceID
-  for /f "delims=" %%i in (i2c_dev_InstanceID.txt) do (
+ ::ÑéÖ¤InstanceID
+  for /f "delims=" %%i in (LogFIle\TouchPad_I2C_devInstanceID.txt) do (
    set "i2c_dev_InstanceID=%%i"
    echo i2c_dev_InstanceID="!i2c_dev_InstanceID!"
    echo.
  )
 
- ::æ³¨æ„åŠ /connectedè¡¨ç¤ºå·²ç»å¯åŠ¨
- pnputil /enum-devices /connected /instanceid "%i2c_dev_InstanceID%" /ids /relations /drivers >i2c_dev.txt
+ ::×¢Òâ¼Ó/connected±íÊ¾ÒÑ¾­Æô¶¯
+ pnputil /enum-devices /connected /instanceid "%i2c_dev_InstanceID%" /ids /relations /drivers >LogFIle\i2c_dev.txt
  echo.
  
- ::æ£€æŸ¥æ˜¯å¦ä¸ºi2cè®¾å¤‡device
-find/i "ACPI\PNP0C50" i2c_dev.txt || (
-     echo æœªå‘ç°i2cè§¦æ§æ¿è®¾å¤‡ï¼Œæ— æ³•å®‰è£…é©±åŠ¨
+ ::¼ì²éÊÇ·ñÎªi2cÉè±¸device
+find/i "ACPI\PNP0C50" LogFIle\i2c_dev.txt || (
+     echo Î´·¢ÏÖi2c´¥¿Ø°åÉè±¸£¬ÎŞ·¨°²×°Çı¶¯
      echo No I2C TouchPad device found, unable to install driver.
      echo.
-     del/f /q i2c_dev.txt
-      set var=TP_NOI2C_ERR
-     echo !var!>>Return.txt
+     del/f /q LogFIle\i2c_dev.txt
+     del/f /q LogFIle\TouchPad_I2C_devInstanceID.txt
+     echo INSTDRV_FAILED >LogFIle\Return_InstDrv.txt
      exit
 )
 
-echo æ‰¾åˆ°i2cè§¦æ§æ¿è®¾å¤‡
-echo I2C TouchPad device found.
+echo ÕÒµ½touchpad´¥¿Ø°åI2CÉè±¸
+echo TouchPad I2C device found.
 echo.
-set var=TP_OK
-echo !var!>>Return.txt
-echo.
+
+
+:InstDrv
+if not exist LogFIle\TouchPad_I2C_devInstanceID.txt (
+     echo »ñÈ¡Éè±¸ÊµÀıÊ§°Ü¡£
+     echo Failed to get devInstanceID. 
+     echo devInstanceID_FAILED >LogFIle\Return_InstDrv.txt
+     echo.
+     exit
+)
+
+  ::´ÓTouchPad_I2C_devInstanceID.txtÎÄ¼ş¶ÁÈ¡Éè±¸ÊµÀı
+  for /f "delims=" %%i in (LogFIle\TouchPad_I2C_devInstanceID.txt) do (
+   set "i2c_devInstanceID=%%i"
+   echo i2c_devInstanceID="!i2c_devInstanceID!"
+   echo.
+ )
  
- ::å®‰è£…é©±åŠ¨ï¼Œåªæ·»åŠ åˆ°é©±åŠ¨åº“ä¸­ä¸å®‰è£…ï¼Œæ³¨æ„åé¢ä¸€å®šä¸è¦åŠ /install
-  pnputil /add-driver MouseLikeTouchPad_I2C.inf
-  echo add-driverå®‰è£…é©±åŠ¨ok
+::°²×°Çı¶¯£¬Ö»Ìí¼Óµ½Çı¶¯¿âÖĞ²»°²×°£¬×¢ÒâºóÃæÒ»¶¨²»Òª¼Ó/install
+  pnputil /add-driver Driver\MouseLikeTouchPad_I2C.inf
+  echo add-driver°²×°Çı¶¯ok
   echo.
   
- ::åˆ é™¤i2cè§¦æ§æ¿è®¾å¤‡
-pnputil /remove-device "%i2c_dev_InstanceID%"
-echo remove-deviceåˆ é™¤è®¾å¤‡ok
+ ::É¾³ıi2c´¥¿Ø°åÉè±¸
+pnputil /remove-device "%i2c_devInstanceID%"
+echo remove-deviceÉ¾³ıÉè±¸ok
 echo.
 
- :æ‰«æi2cè§¦æ§æ¿è®¾å¤‡ä½¿å…¶è‡ªåŠ¨å®‰è£…oemç¬¬ä¸‰æ–¹é©±åŠ¨
+ :É¨Ãèi2c´¥¿Ø°åÉè±¸Ê¹Æä×Ô¶¯°²×°oemµÚÈı·½Çı¶¯
 pnputil /scan-devices
-echo scan-devicesæ‰«æè®¾å¤‡ok
+echo scan-devicesÉ¨ÃèÉè±¸ok
 echo.
 
 
-::éªŒè¯æ˜¯å¦å®‰è£…æˆåŠŸï¼Œæ³¨æ„åŠ /connectedè¡¨ç¤ºå·²ç»å¯åŠ¨
- pnputil /enum-devices /connected /instanceid "%i2c_dev_InstanceID%" /ids /relations /drivers >i2c_dev.txt
+::ÑéÖ¤ÊÇ·ñ°²×°³É¹¦£¬×¢Òâ¼Ó/connected±íÊ¾ÒÑ¾­Æô¶¯
+ pnputil /enum-devices /connected /instanceid "%i2c_devInstanceID%" /ids /relations /drivers >LogFIle\i2c_dev.txt
  echo.
  
-find/i "MouseLikeTouchPad_I2C" i2c_dev.txt || (
-     echo å®‰è£…é©±åŠ¨å¤±è´¥ï¼Œè¯·å¸è½½ç¬¬ä¸‰æ–¹é©±åŠ¨åé‡æ–°å†è¯•
-     echo Failed to install the driver. Please uninstall the third-party driver and try again.
+find/i "MouseLikeTouchPad_I2C" LogFIle\hid_dev.txt || (
+     echo °²×°Çı¶¯Ê§°Ü£¬ÇëÉÔºóÔÙÊÔ
+     echo Failed to install the driver. Please  try again later.
      echo.
-     del/f /q i2c_dev.txt
-     set var=INSTDRV_ERR
-     echo !var!>>Return.txt
+     echo INSTDRV_FAILED >LogFIle\Return_InstDrv.txt
+     del/f /q LogFIle\hid_dev.txt
      exit
 )
 
-del/f /q i2c_dev.txt
+del/f /q LogFIle\hid_dev.txt
 echo.
 
-echo å®‰è£…é©±åŠ¨æˆåŠŸ
+
+echo °²×°Çı¶¯³É¹¦
 echo Driver installed successfully.
 echo.
-set var=INSTDRV_OK
-echo !var!>>Return.txt
+echo INSTDRV_OK >LogFIle\Return_InstDrv.txt
+echo INSTDRV_OK >LogFIle\InstDrvSucceeded.txt
 echo.
-
